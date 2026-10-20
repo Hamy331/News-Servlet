@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Sửa bài · Bài viết của tôi · Lịch sử · Chuông thông báo
+   (dùng chung biến màu --wk-* trong workspace.css)
+   ========================================================================== */
+
+/* ---------- Dòng thời gian lịch sử ---------- */
+.ht { list-style: none; margin: 0; padding: 0; position: relative; }
+.ht::before { content: ""; position: absolute; left: 17px; top: 6px; bottom: 6px; width: 2px; background: #eee; }
+.ht-item { position: relative; display: flex; gap: 14px; padding-bottom: 20px; }
+.ht-item:last-child { padding-bottom: 0; }
+.ht-dot {
+  position: relative; z-index: 1; flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #f3f3f3; color: #666; border: 3px solid #fff; font-size: 0.95rem;
+}
+.ht--green .ht-dot { background: #e8f5ee; color: #198754; }
+.ht--red .ht-dot   { background: #fdecea; color: #d93025; }
+.ht--blue .ht-dot  { background: #e8f0fe; color: #0d6efd; }
+.ht--amber .ht-dot { background: #fff4e0; color: #b7791f; }
+.ht-body { flex: 1; min-width: 0; padding-top: 6px; }
+.ht-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ht-head strong { font-size: 0.92rem; color: #111; }
+.ht-head time { font-size: 0.78rem; color: #999; white-space: nowrap; }
+.ht-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.ht-role { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; background: #f3f3f3; padding: 1px 6px; border-radius: 999px; }
+.ht-fields { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.ht-fields span { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: #fff4e0; color: #8a5a00; }
+.ht-note { margin-top: 8px; padding: 8px 12px; border-left: 3px solid #d93025; background: #fdf0ef; border-radius: 0 8px 8px 0; font-size: 0.84rem; color: #8a2a21; font-style: italic; white-space: pre-line; }
+
+/* ---------- Bài viết của tôi ---------- */
+.ma-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.ma-find { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #eaeaea; border-radius: 999px; padding: 8px 14px; min-width: 260px; }
+.ma-find:focus-within { border-color: #111; }
+.ma-find input { border: 0; outline: 0; background: transparent; flex: 1; min-width: 0; font-size: 0.9rem; }
+
+.ma-item { display: flex; gap: 18px; padding: 18px 0; border-bottom: 1px solid #f2f2f2; }
+.ma-item:first-child { padding-top: 0; }
+.ma-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.ma-thumb { width: 132px; height: 92px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #eee; }
+.ma-body { flex: 1; min-width: 0; }
+.ma-top { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.ma-title { font-family: 'Lora', serif; font-weight: 700; font-size: 1.12rem; line-height: 1.35; color: #111; display: block; }
+a.ma-title:hover { color: #0d6efd; }
+.ma-rev { margin-top: 6px; font-size: 0.84rem; color: #8a5a00; background: #fff8eb; border: 1px dashed #f0d9a8; border-radius: 8px; padding: 6px 10px; }
+.ma-rev b { font-weight: 700; }
+.ma-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.8rem; color: #888; margin-top: 8px; }
+.ma-meta i { margin-right: 4px; }
+.ma-note { margin-top: 10px; padding: 10px 14px; border-radius: 10px; background: #fdf0ef; border: 1px solid #f5cdca; color: #8a2a21; font-size: 0.86rem; line-height: 1.5; white-space: pre-line; }
+.ma-note strong { display: block; font-size: 0.72rem; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 2px; white-space: normal; }
+.ma-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-width: 130px; }
+.ma-actions form { margin: 0; }
+.ma-actions .wk-btn { width: 100%; }
+.wk-pill.wk-pill--revision_pending { background: #fff4e0; color: #b7791f; }
+.wk-pill.wk-pill--revision_rejected { background: #fdecea; color: #d93025; }
+.wk-pill.wk-pill--draft { background: #f0f0f0; color: #666; }
+.ma-hidden { display: none !important; }
+
+@media (max-width: 767.98px) {
+  .ma-item { flex-wrap: wrap; }
+  .ma-thumb { width: 96px; height: 70px; }
+  .ma-actions { flex-direction: row; flex-wrap: wrap; width: 100%; min-width: 0; }
+  .ma-actions .wk-btn, .ma-actions form { flex: 1 1 auto; width: auto; }
+}
+
+/* ---------- Trang sửa bài ---------- */
+.ed-state { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: 12px; background: #f7f7f7; margin-bottom: 14px; }
+.ed-state i { font-size: 1.3rem; margin-top: 2px; }
+.ed-state--published { background: #fff8eb; color: #6b4a00; }
+.ed-state--rejected, .ed-state--revision_rejected { background: #fdf0ef; color: #8a2a21; }
+.ed-state--pending, .ed-state--revision_pending { background: #eef4ff; color: #12408f; }
+.ed-state strong { display: block; font-size: 0.92rem; margin-bottom: 2px; }
+.ed-state p { margin: 0; font-size: 0.84rem; line-height: 1.5; }
+.ed-actions { display: flex; flex-direction: column; gap: 8px; }
+.ed-actions .wk-btn { width: 100%; padding: 12px 16px; }
+.ed-field { margin-bottom: 18px; }
+.ed-field label { display: block; font-weight: 700; font-size: 0.88rem; color: #111; margin-bottom: 7px; }
+.ed-field .form-control, .ed-field .form-select { border-radius: 10px; }
+.ed-sticky { position: sticky; top: 84px; }
+@media (max-width: 991.98px) { .ed-sticky { position: static; } }
+
+/* ---------- Chuông thông báo (thanh Workspace) ---------- */
+.nt-bell {
+  position: relative; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid #ececec; background: #fff; color: #111;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.nt-bell:hover, .nt-bell[aria-expanded="true"] { border-color: #111; }
+.nt-badge {
+  position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px;
+  border-radius: 999px; background: #d93025; color: #fff; border: 2px solid #fff;
+  font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.nt-menu { width: min(380px, 92vw); padding: 0 !important; overflow: hidden; }
+.nt-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #eee; }
+.nt-head strong { font-size: 0.95rem; color: #111; }
+.nt-head button { border: 0; background: none; font-size: 0.8rem; font-weight: 600; color: #0d6efd; padding: 0; cursor: pointer; }
+.nt-list { max-height: 400px; overflow-y: auto; }
+.nt-item { display: flex; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f4f4f4; color: #333 !important; text-decoration: none; font-size: 0.86rem; line-height: 1.45; transition: background 0.15s; }
+.nt-item:hover { background: #fafafa; }
+.nt-item.is-unread { background: #f5f9ff; }
+.nt-item.is-unread:hover { background: #edf3ff; }
+.nt-icon { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #f1f1f1; font-size: 0.9rem; }
+.nt-item.is-unread .nt-icon { background: #111; color: #fff; }
+.nt-item time { display: block; font-size: 0.75rem; color: #999; margin-top: 3px; }
+.nt-empty { padding: 30px 16px; text-align: center; color: #999; font-size: 0.88rem; }

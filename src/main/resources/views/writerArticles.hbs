@@ -1,0 +1,152 @@
+<link rel="stylesheet" href="/css/workspace.css">
+
+<div class="wk-page">
+  <div class="container">
+
+    <div class="wk-head">
+      <div>
+        <div class="wk-kicker" style="color:#198754"><i class="bi bi-journal-text"></i> Writer Workspace</div>
+        <h1 class="wk-title">Bài viết của tôi</h1>
+        <p class="wk-sub">Theo dõi trạng thái, sửa bài bị từ chối để gửi lại, hoặc chỉnh sửa bài đã đăng — bản sửa sẽ được duyệt trước khi thay bản cũ.</p>
+      </div>
+      <div class="wk-head-actions">
+        <a href="/writer" class="wk-btn"><i class="bi bi-plus-lg"></i> Viết bài mới</a>
+      </div>
+    </div>
+
+    {{#if flash}}
+    <div class="wk-flash wk-flash--{{flash.type}}">
+      <i class="bi {{#if (eq flash.type 'success')}}bi-check-circle-fill{{else}}bi-info-circle-fill{{/if}}"></i>
+      <span>{{flash.text}}</span>
+      <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Đóng"></button>
+    </div>
+    {{/if}}
+
+    <div class="wk-stats">
+      <div class="wk-stat"><div class="wk-stat-icon"><i class="bi bi-files"></i></div><div><div class="wk-stat-label">Tổng bài</div><div class="wk-stat-value">{{counts.all}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--amber"><i class="bi bi-hourglass-split"></i></div><div><div class="wk-stat-label">Đang chờ duyệt</div><div class="wk-stat-value">{{counts.pending}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--red"><i class="bi bi-exclamation-octagon"></i></div><div><div class="wk-stat-label">Cần sửa</div><div class="wk-stat-value">{{counts.rejected}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--green"><i class="bi bi-check2-circle"></i></div><div><div class="wk-stat-label">Đã đăng</div><div class="wk-stat-value">{{counts.published}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--blue"><i class="bi bi-eye"></i></div><div><div class="wk-stat-label">Tổng lượt xem</div><div class="wk-stat-value">{{totalViews}}</div></div></div>
+    </div>
+
+    <div class="ma-toolbar">
+      <div class="wk-tabs mb-0" role="tablist" style="border:0">
+        <button type="button" class="wk-tab active" data-filter="all">Tất cả <span class="wk-count">{{counts.all}}</span></button>
+        <button type="button" class="wk-tab" data-filter="pending">Chờ duyệt <span class="wk-count">{{counts.pending}}</span></button>
+        <button type="button" class="wk-tab" data-filter="rejected">Cần sửa <span class="wk-count {{#if counts.rejected}}wk-count--alert{{/if}}">{{counts.rejected}}</span></button>
+        <button type="button" class="wk-tab" data-filter="published">Đã đăng <span class="wk-count">{{counts.published}}</span></button>
+        {{#if counts.draft}}<button type="button" class="wk-tab" data-filter="draft">Nháp <span class="wk-count">{{counts.draft}}</span></button>{{/if}}
+      </div>
+      <label class="ma-find">
+        <i class="bi bi-search text-muted"></i>
+        <input type="search" id="maFind" placeholder="Tìm theo tiêu đề..." aria-label="Tìm bài viết">
+      </label>
+    </div>
+
+    <div class="wk-panel">
+      {{#each articles}}
+      <div class="ma-item" data-state="{{this.state}}" data-text="{{this.title}} {{this.revisionTitle}}">
+        <img class="ma-thumb" src="{{this.image_url.[0]}}" alt=""
+             onerror="this.onerror=null;this.src='https://placehold.co/264x184/eeeeee/999999?text=No+Image';">
+        <div class="ma-body">
+          <div class="ma-top">
+            <span class="wk-pill wk-pill--{{this.state}}">{{this.stateLabel}}</span>
+            {{#if this.category.name}}<span class="wk-pill wk-pill--cat">{{this.category.name}}</span>{{/if}}
+          </div>
+          {{#if (eq this.status 'published')}}
+          <a href="/details?id={{this._id}}" target="_blank" class="ma-title">{{this.title}}</a>
+          {{else}}
+          <div class="ma-title">{{this.title}}</div>
+          {{/if}}
+
+          {{#if this.revisionTitle}}
+          <div class="ma-rev"><i class="bi bi-pencil-square me-1"></i>Bản sửa{{#if (eq this.state 'revision_pending')}} đang chờ duyệt{{else}} bị từ chối{{/if}}: <b>{{this.revisionTitle}}</b> — bài đang đăng vẫn là bản cũ.</div>
+          {{/if}}
+
+          <div class="ma-meta">
+            <span><i class="bi bi-clock"></i>Cập nhật {{timeAgo this.updatedAt}}</span>
+            {{#if (eq this.status 'published')}}
+            <span><i class="bi bi-eye"></i>{{this.views}}</span>
+            <span><i class="bi bi-heart"></i>{{this.likesCount}}</span>
+            <span><i class="bi bi-chat"></i>{{this.commentsCount}}</span>
+            {{/if}}
+          </div>
+
+          {{#if this.note}}
+          <div class="ma-note"><strong><i class="bi bi-chat-left-text me-1"></i>Ghi chú của biên tập viên</strong>{{this.note}}</div>
+          {{/if}}
+        </div>
+
+        <div class="ma-actions">
+          <a href="/writer/edit/{{this._id}}" class="wk-btn wk-btn--sm"><i class="bi bi-pencil"></i> Sửa</a>
+          {{#if this.canResubmit}}
+          <form action="/writer/articles/{{this._id}}/resubmit" method="post">
+            <button type="submit" class="wk-btn wk-btn--success wk-btn--sm"><i class="bi bi-arrow-repeat"></i> Gửi lại</button>
+          </form>
+          {{/if}}
+          {{#if this.canDiscard}}
+          <form action="/writer/articles/{{this._id}}/discard" method="post" onsubmit="return confirm('Huỷ bản sửa? Bài đang đăng sẽ giữ nguyên.');">
+            <button type="submit" class="wk-btn wk-btn--danger wk-btn--sm"><i class="bi bi-trash3"></i> Huỷ bản sửa</button>
+          </form>
+          {{/if}}
+          <a href="/article/history/{{this._id}}" class="wk-btn wk-btn--ghost wk-btn--sm"><i class="bi bi-clock-history"></i> Lịch sử</a>
+        </div>
+      </div>
+      {{else}}
+      <div class="wk-empty">
+        <div class="wk-empty-icon"><i class="bi bi-pen"></i></div>
+        <h5>Bạn chưa có bài viết nào</h5>
+        <p class="mb-3">Bắt đầu với bài đầu tiên của bạn.</p>
+        <a href="/writer" class="wk-btn"><i class="bi bi-plus-lg"></i> Viết bài mới</a>
+      </div>
+      {{/each}}
+      <p id="maNoMatch" class="text-center text-muted fst-italic py-4 mb-0 ma-hidden">Không có bài nào khớp bộ lọc.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const GROUPS = {
+    all: null,
+    pending: ["pending", "revision_pending"],
+    rejected: ["rejected", "revision_rejected"],
+    published: ["published", "revision_pending", "revision_rejected"],
+    draft: ["draft"],
+  };
+  let filter = "all";
+  const find = document.getElementById("maFind");
+  const items = Array.from(document.querySelectorAll(".ma-item"));
+
+  function apply() {
+    const q = find.value.trim().toLowerCase();
+    let shown = 0;
+    items.forEach(function (el) {
+      const g = GROUPS[filter];
+      const ok = (!g || g.includes(el.dataset.state)) && (!q || el.dataset.text.toLowerCase().includes(q));
+      el.classList.toggle("ma-hidden", !ok);
+      if (ok) shown++;
+    });
+    document.getElementById("maNoMatch").classList.toggle("ma-hidden", shown > 0 || !items.length);
+  }
+
+  document.querySelectorAll(".wk-tab[data-filter]").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll(".wk-tab[data-filter]").forEach((t) => t.classList.toggle("active", t === tab));
+      filter = tab.dataset.filter;
+      history.replaceState(null, "", location.pathname + (filter === "all" ? "" : "#" + filter));
+      apply();
+    });
+  });
+  find.addEventListener("input", apply);
+
+  // Mở sẵn tab theo #hash (vd. #rejected từ thông báo)
+  const h = location.hash.slice(1);
+  const t = document.querySelector('.wk-tab[data-filter="' + h + '"]');
+  if (t) t.click();
+
+  if (location.search.includes("msg=")) history.replaceState(null, "", location.pathname + location.hash);
+})();
+</script>

@@ -1,0 +1,34 @@
+<main class="au-card">
+    <section class="au-side">
+        {{> authBrand}}
+
+        <div class="au-main">
+            <h1 class="au-title">Quên mật khẩu?</h1>
+            <p class="au-lead">Nhập email đã đăng ký. Chúng tôi sẽ gửi cho bạn đường dẫn để đặt lại mật khẩu (có hiệu lực trong 15 phút).</p>
+
+            {{#if message}}<div class="au-alert au-alert--success"><i class="bi bi-envelope-check-fill"></i><span>{{message}}</span></div>{{/if}}
+            {{#if has_errors}}<div class="au-alert au-alert--error"><i class="bi bi-exclamation-circle-fill"></i><span>{{has_errors}}</span></div>{{/if}}
+            {{#if devLink}}
+            <div class="au-alert" style="background:#fff8e6;color:#7a5200;flex-direction:column;gap:6px">
+                <strong><i class="bi bi-tools"></i> Chế độ phát triển</strong>
+                <span>Dùng tạm đường dẫn này để đặt lại mật khẩu (chỉ hiện khi chưa chạy production):</span>
+                <a href="{{devLink}}" style="color:#7a5200;font-weight:700;word-break:break-all">Mở trang đặt lại mật khẩu →</a>
+            </div>
+            {{/if}}
+
+            <form class="au-form" action="/auth/forgot" method="post">
+                <div class="au-field" style="margin-bottom:22px">
+                    <label for="email">Email</label>
+                    <input class="au-input" type="email" id="email" name="email" placeholder="Địa chỉ email của bạn" required autocomplete="email" autofocus>
+                </div>
+                <button class="au-btn" type="submit">Gửi đường dẫn <i class="bi bi-send"></i></button>
+            </form>
+
+            <p class="au-switch">Đã nhớ ra mật khẩu? <a href="/auth/login">Quay lại đăng nhập</a></p>
+        </div>
+
+        {{> authFoot}}
+    </section>
+
+    {{> authVisual heading="Đừng lo, chuyện nhỏ thôi" text="Kiểm tra hộp thư (kể cả mục Spam) sau khi gửi yêu cầu. Đường dẫn chỉ dùng được một lần và hết hạn sau 15 phút."}}
+</main>

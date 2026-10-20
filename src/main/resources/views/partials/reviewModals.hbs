@@ -1,0 +1,174 @@
+{{!-- Modal Duyệt / Từ chối + khung Xem trước — dùng chung cho Editor & Admin --}}
+
+<!-- DUYỆT -->
+<div class="modal fade wk-modal" id="wkApproveModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <form class="modal-content" action="/article/approve" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-check2-circle text-success me-2"></i><span class="wk-approve-title">Duyệt &amp; xuất bản</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="articleId" class="wk-field-id">
+        <div class="wk-modal-article"><small class="wk-field-cat"></small><span class="wk-field-title"></span></div>
+        <div class="wk-revision-hint ed-state ed-state--published" style="display:none"><i class="bi bi-info-circle"></i><div><strong>Đây là bản sửa của bài đã đăng</strong><p>Khi duyệt, nội dung mới sẽ thay bản đang hiển thị. Lượt xem, tim, bình luận và ngày đăng gốc được giữ nguyên.</p></div></div>
+
+        <span class="wk-label">Phân loại bài khi đăng</span>
+        <div class="wk-types">
+          <div class="wk-type">
+            <input type="radio" name="articleType" id="wkTypeNormal" value="normal" checked>
+            <label for="wkTypeNormal"><i class="bi bi-file-text"></i><div><strong>Bài thường</strong><span>Hiển thị trong chuyên mục và tin mới.</span></div></label>
+          </div>
+          <div class="wk-type">
+            <input type="radio" name="articleType" id="wkTypeHot" value="hot">
+            <label for="wkTypeHot"><i class="bi bi-fire text-danger"></i><div><strong>Hot News</strong><span>Ưu tiên ở mục Trending của trang chi tiết.</span></div></label>
+          </div>
+          <div class="wk-type">
+            <input type="radio" name="articleType" id="wkTypeMust" value="must_know">
+            <label for="wkTypeMust"><i class="bi bi-star text-warning"></i><div><strong>Must Know</strong><span>Tin quan trọng độc giả cần biết.</span></div></label>
+          </div>
+          <div class="wk-type">
+            <input type="radio" name="articleType" id="wkTypeAd" value="advertisement">
+            <label for="wkTypeAd"><i class="bi bi-megaphone"></i><div><strong>Quảng cáo</strong><span>Hiện ở khung Sponsored.</span></div></label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button>
+        <button type="submit" class="wk-btn wk-btn--success"><i class="bi bi-send-check"></i> Xuất bản</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TỪ CHỐI -->
+<div class="modal fade wk-modal" id="wkRejectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" action="/article/reject" method="POST">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-x-octagon text-danger me-2"></i>Từ chối bài viết</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="articleIdReject" class="wk-field-id">
+        <div class="wk-modal-article"><small class="wk-field-cat"></small><span class="wk-field-title"></span></div>
+
+        <label class="wk-label" for="wkRejectNote">Ghi chú gửi tác giả</label>
+        <div class="wk-reasons">
+          <button type="button" class="wk-reason">Thiếu nguồn tin xác thực</button>
+          <button type="button" class="wk-reason">Tiêu đề chưa phù hợp</button>
+          <button type="button" class="wk-reason">Sai chính tả, ngữ pháp</button>
+          <button type="button" class="wk-reason">Ảnh minh hoạ không đạt</button>
+          <button type="button" class="wk-reason">Sai chuyên mục</button>
+        </div>
+        <textarea class="form-control" id="wkRejectNote" name="rejectNote" rows="4" required
+                  placeholder="Nêu rõ lý do để tác giả chỉnh sửa và gửi lại..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button>
+        <button type="submit" class="wk-btn" style="background:#d93025;border-color:#d93025"><i class="bi bi-x-lg"></i> Từ chối bài</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- XEM TRƯỚC -->
+<div class="offcanvas offcanvas-end wk-preview" tabindex="-1" id="wkPreview" aria-label="Xem trước bài viết">
+  <div class="offcanvas-header">
+    <span class="wk-kicker mb-0"><i class="bi bi-eye"></i> Xem trước</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+  </div>
+  <div class="offcanvas-body">
+    <span class="wk-pill wk-pill--cat wk-pv-cat"></span>
+    <h2 class="wk-preview-title wk-pv-title"></h2>
+    <p class="wk-preview-sum wk-pv-sum"></p>
+    <div class="wk-preview-meta">
+      <span><i class="bi bi-person me-1"></i><span class="wk-pv-author"></span></span>
+      <span><i class="bi bi-clock me-1"></i><span class="wk-pv-date"></span></span>
+      <span class="wk-pill wk-pill--pending wk-pv-state">Chờ duyệt</span>
+    </div>
+    <img class="wk-preview-img wk-pv-img" alt="">
+    <div class="wk-preview-content wk-pv-content"></div>
+  </div>
+  <div class="wk-preview-foot">
+    <button type="button" class="wk-btn wk-btn--danger" data-wk-from-preview="reject"><i class="bi bi-x-lg"></i> Từ chối</button>
+    <button type="button" class="wk-btn wk-btn--success" data-wk-from-preview="approve"><i class="bi bi-check2"></i> Duyệt</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  let currentRow = null;
+  const $ = (sel, root = document) => root.querySelector(sel);
+
+  function fillModal(modalEl, row) {
+    modalEl.querySelector(".wk-field-id").value = row.dataset.id;
+    modalEl.querySelector(".wk-field-title").textContent = row.dataset.title;
+    modalEl.querySelector(".wk-field-cat").textContent = row.dataset.cat;
+  }
+
+  function open(action, row) {
+    currentRow = row;
+    if (action === "approve" || action === "reject") {
+      const el = document.getElementById(action === "approve" ? "wkApproveModal" : "wkRejectModal");
+      fillModal(el, row);
+      if (action === "reject") el.querySelector("textarea").value = "";
+      if (action === "approve") {
+        const isRev = row.dataset.revision === "1";
+        el.querySelector(".wk-approve-title").textContent = isRev ? "Duyệt bản sửa" : "Duyệt & xuất bản";
+        el.querySelector(".wk-revision-hint").style.display = isRev ? "" : "none";
+        // Bản sửa: chọn sẵn phân loại hiện tại để không vô tình hạ cấp bài Hot / Must Know
+        const type = isRev && row.dataset.type ? row.dataset.type : "normal";
+        const radio = el.querySelector('input[name="articleType"][value="' + type + '"]');
+        if (radio) radio.checked = true;
+      }
+      bootstrap.Modal.getOrCreateInstance(el).show();
+    } else if (action === "preview") {
+      const pv = document.getElementById("wkPreview");
+      $(".wk-pv-cat", pv).textContent = row.dataset.cat;
+      $(".wk-pv-title", pv).textContent = row.dataset.title;
+      $(".wk-pv-sum", pv).textContent = row.dataset.summary || "";
+      $(".wk-pv-author", pv).textContent = row.dataset.author || "—";
+      $(".wk-pv-date", pv).textContent = row.dataset.date;
+      $(".wk-pv-state", pv).textContent = row.dataset.revision === "1" ? "Bản sửa — chờ duyệt" : "Chờ duyệt";
+      const img = $(".wk-pv-img", pv);
+      img.style.display = row.dataset.img ? "" : "none";
+      img.src = row.dataset.img || "";
+      const tpl = row.querySelector("template.wk-content");
+      const box = $(".wk-pv-content", pv);
+      box.innerHTML = "";
+      if (tpl) box.appendChild(tpl.content.cloneNode(true));
+      bootstrap.Offcanvas.getOrCreateInstance(pv).show();
+    }
+  }
+
+  // Nút trong bảng (dùng delegation để vẫn chạy khi DataTables phân trang)
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-wk-action]");
+    if (btn) { open(btn.dataset.wkAction, btn.closest("tr")); return; }
+
+    const fromPv = e.target.closest("[data-wk-from-preview]");
+    if (fromPv && currentRow) {
+      bootstrap.Offcanvas.getOrCreateInstance(document.getElementById("wkPreview")).hide();
+      setTimeout(() => open(fromPv.dataset.wkFromPreview, currentRow), 250);
+      return;
+    }
+
+    const reason = e.target.closest(".wk-reason");
+    if (reason) {
+      const ta = document.getElementById("wkRejectNote");
+      ta.value = ta.value ? ta.value.replace(/\s*$/, "") + "\n- " + reason.textContent : "- " + reason.textContent;
+      ta.focus();
+    }
+  });
+
+  // Chống bấm gửi 2 lần
+  document.querySelectorAll(".wk-modal form").forEach(function (f) {
+    f.addEventListener("submit", function () {
+      const b = f.querySelector('button[type="submit"]');
+      b.disabled = true;
+      b.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+    });
+  });
+})();
+</script>

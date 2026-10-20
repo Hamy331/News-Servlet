@@ -1,0 +1,88 @@
+<link rel="stylesheet" href="/css/magazine.css">
+
+<style>
+  .nf { padding: 40px 0 20px; text-align: center; }
+  .nf-code {
+    position: relative; display: inline-block;
+    font-family: 'Lora', serif; font-weight: 700;
+    font-size: clamp(7rem, 22vw, 15rem); line-height: 0.9; letter-spacing: -0.05em;
+    color: transparent; -webkit-text-stroke: 2px #111;
+    user-select: none;
+  }
+  .nf-code span { color: #111; -webkit-text-stroke: 0; }
+  .nf-code::after {
+    content: ""; position: absolute; right: -0.22em; bottom: 0.1em;
+    width: 0.16em; height: 0.16em; border-radius: 50%; background: #d93025;
+    animation: nfBlink 1.6s ease-in-out infinite;
+  }
+  @keyframes nfBlink { 50% { opacity: 0.25; } }
+  .nf-kicker { display: inline-block; margin: 26px 0 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #d93025; }
+  .nf-title { font-family: 'Lora', serif; font-size: 2.2rem; font-weight: 700; color: #111; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .nf-msg { font-size: 1.08rem; color: #666; max-width: 540px; margin: 0 auto 28px; line-height: 1.65; }
+
+  .nf-search { display: flex; align-items: center; gap: 10px; max-width: 520px; margin: 0 auto 22px; background: #fff; border: 1px solid #e3e3e3; border-radius: 999px; padding: 6px 6px 6px 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); transition: border-color 0.2s; }
+  .nf-search:focus-within { border-color: #111; }
+  .nf-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 0.98rem; }
+  .nf-search button { border: 0; border-radius: 999px; background: #111; color: #fff; font-weight: 600; font-size: 0.9rem; padding: 10px 20px; cursor: pointer; transition: background 0.2s; }
+  .nf-search button:hover { background: #d93025; }
+
+  .nf-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .nf-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 999px; border: 1px solid #e3e3e3; background: #fff; font-weight: 600; font-size: 0.9rem; color: #111; transition: all 0.2s; cursor: pointer; }
+  .nf-btn:hover { border-color: #111; }
+
+  @media (max-width: 575.98px) {
+    .nf-title { font-size: 1.6rem; }
+    .nf-code { -webkit-text-stroke-width: 1.5px; }
+  }
+</style>
+
+<div class="mz-page py-5">
+  <div class="container">
+
+    <section class="nf">
+      <div class="nf-code" aria-hidden="true">4<span>0</span>4</div>
+      <div><span class="nf-kicker">Lỗi 404 · Không tìm thấy</span></div>
+      <h1 class="nf-title">Tin này đã “lên trang” ở đâu đó khác</h1>
+      <p class="nf-msg">{{#if message}}{{message}}{{else}}Trang bạn tìm có thể đã bị xoá, đổi địa chỉ hoặc chưa từng tồn tại.{{/if}}</p>
+
+      <form action="/search" method="get" class="nf-search" role="search">
+        <i class="bi bi-search text-muted"></i>
+        <input type="text" name="q" placeholder="Thử tìm bài viết bạn cần..." aria-label="Tìm kiếm">
+        <button type="submit">Tìm</button>
+      </form>
+
+      <div class="nf-actions">
+        <a href="/" class="nf-btn"><i class="bi bi-house-door"></i> Trang chủ</a>
+        <a href="/latest" class="nf-btn"><i class="bi bi-lightning-charge"></i> Tin mới nhất</a>
+        <button type="button" class="nf-btn" onclick="history.length > 1 ? history.back() : location.assign('/')"><i class="bi bi-arrow-left"></i> Quay lại</button>
+      </div>
+    </section>
+
+    {{#if suggestions.length}}
+    <section class="mz-section">
+      <div class="mz-section-head">
+        <h2 class="mz-section-title">Có thể bạn đang tìm</h2>
+        <a href="/latest" class="mz-section-link">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="row g-4">
+        {{#each suggestions}}
+        <div class="col-md-4">
+          <a href="/details?id={{this._id}}" class="mz-card mz-hover">
+            <div class="mz-thumb">
+              <img src="{{this.image_url.[0]}}" alt="{{this.title}}"
+                   onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+            </div>
+            <div class="mz-card-body">
+              {{#if this.category.name}}<span class="mz-kicker">{{this.category.name}}</span>{{/if}}
+              <h3 class="mz-headline mz-headline--md mz-clamp-3">{{this.title}}</h3>
+              <div class="mz-meta"><span><i class="bi bi-calendar3"></i>{{formatDate (or this.publishedAt this.createdAt)}}</span></div>
+            </div>
+          </a>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
+
+  </div>
+</div>

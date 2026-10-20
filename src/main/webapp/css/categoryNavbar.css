@@ -1,0 +1,246 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+
+/* Header Tổng */
+.editorial-header {
+    background-color: #ffffff;
+    position: relative;
+    z-index: 1050;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+
+.main-logo-text {
+    font-family: 'Lora', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+.nav-link-custom {
+    color: #555;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 0.85rem;
+}
+.nav-link-custom:hover {
+    color: #0d6efd;
+}
+
+.avatar-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* =========================================
+   HIỆU ỨNG GLASSMORPHISM CHO THANH DANH MỤC
+   ========================================= */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.75); /* Trong suốt một phần */
+    backdrop-filter: blur(12px); /* Làm mờ nền phía sau */
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.category-link {
+    font-size: 0.9rem; /* Chữ nhỏ lại, tinh tế hơn */
+    color: #333 !important;
+    transition: color 0.2s ease;
+}
+.category-link:hover {
+    color: #d93025 !important;
+}
+
+/* DROPDOWN MENU CON (TAGS) */
+.dropdown-hover .dropdown-menu-custom {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(15px);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.05);
+    min-width: 160px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 1001;
+    padding: 8px 0;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+.dropdown-hover:hover .dropdown-menu-custom {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+.dropdown-item-custom {
+    display: block;
+    padding: 8px 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    text-align: left;
+}
+.dropdown-item-custom:hover {
+    color: #0d6efd;
+    background: rgba(13, 110, 253, 0.05);
+    padding-left: 24px;
+}
+
+/* =========================================
+   MEGA MENU BỌC LƯỚI CSS GRID (CHỐNG LỖI ĐÈ CHỮ)
+   ========================================= */
+.dropdown-mega {
+    position: static !important; /* Mở rộng toàn màn hình */
+}
+
+.glass-mega {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 1000;
+}
+
+.dropdown-mega:hover .glass-mega {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Lưới tự động chia cột thông minh */
+.mega-grid-custom {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 2rem;
+    width: 100%;
+}
+
+.mega-title {
+    color: #111;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #eaeaea;
+    transition: color 0.2s;
+}
+.mega-title:hover {
+    color: #0d6efd;
+}
+
+.mega-link {
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+    display: inline-block;
+}
+.mega-link:hover {
+    color: #0d6efd !important;
+    transform: translateX(4px);
+}
+
+/* KHUNG SEARCH (ANIMATION MƯỢT) */
+.search-toggle-btn {
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+.search-toggle-btn:hover {
+    color: #d93025 !important;
+    transform: scale(1.1);
+}
+
+.search-overlay {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #f1f1f1;
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-15px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.search-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.search-input {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    background: transparent;
+    border-bottom: 2px solid #ddd !important;
+    border-radius: 0;
+    transition: border-color 0.3s;
+}
+.search-input:focus {
+    box-shadow: none;
+    border-color: #0d6efd !important;
+}
+
+
+.editorial-header a, 
+.editorial-header li, 
+.editorial-header p, 
+.editorial-header span {
+    font-size: inherit; /* Khôi phục kích thước chuẩn */
+}
+
+/* Menu Dropdown Tài khoản (Góc phải) */
+.user-dropdown-menu {
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    padding: 10px 0 !important;
+    min-width: 180px;
+    
+    /* Animation mượt mà */
+    display: block !important;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Khi hover hoặc click mở menu */
+.dropdown:hover .user-dropdown-menu,
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown-menu .dropdown-item {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important; /* Ép cứng size nhỏ gọn */
+    padding: 10px 20px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s;
+}
+
+.user-dropdown-menu .dropdown-item:hover {
+    background-color: #f8f9fa !important;
+    color: #0d6efd !important;
+    padding-left: 25px !important; /* Đẩy chữ nhẹ khi hover */
+}
+.user-dropdown-menu .dropdown-item.text-danger:hover {
+    color: #d93025 !important;
+    background-color: rgba(217, 48, 37, 0.05) !important;
+}

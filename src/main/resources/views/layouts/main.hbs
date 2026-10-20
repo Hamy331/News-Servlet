@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{#if title}}{{title}} · {{/if}}GR6 NEWS</title>
+    
+    <!-- CSS CHÍNH -->
+    <link rel="stylesheet" href="/css/categoryNavbar.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/register.css">
+    <link rel="stylesheet" href="/css/writer.css">
+    <link rel="stylesheet" href="/css/editor.css">
+    <link rel="stylesheet" href="/css/administrator.css">
+    <link rel="stylesheet" href="/css/details.css">
+    <link rel="stylesheet" href="/css/comment.css">
+    <link rel="stylesheet" href="/css/about.css">
+    <link rel="stylesheet" href="/css/list.css">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/css/navbar.css">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+</head>
+
+<body>
+
+    <div class="gn-scope">
+        <!-- TẦNG 0: DẢI TIỆN ÍCH -->
+        <div class="gn-utility d-none d-md-block">
+            <div class="gn-wrap">
+                <div class="gn-utility-links">
+                    <span class="gn-live">Trực tiếp</span>
+                    <span id="datetime"></span>
+                </div>
+                <div class="gn-utility-links">
+                    <a href="/latest">Tin mới nhất</a><span class="gn-dot"></span>
+                    <a href="/about">Về chúng tôi</a><span class="gn-dot"></span>
+                    <a href="https://www.facebook.com/congdongvnexpress" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="https://x.com/vietnamenglish" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                    <a href="https://www.instagram.com/vnexpress.official/" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TẦNG 1: MASTHEAD -->
+        <header class="gn-masthead" id="gnMasthead">
+            <div class="gn-wrap">
+                <div class="gn-mast-left">
+                    <button class="gn-icon-btn d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#gnOffcanvas" aria-label="Mở menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="gn-date d-none d-lg-block">
+                        <strong id="gnWeekday"></strong><span id="gnDate"></span>
+                    </div>
+                </div>
+
+                <a href="/" class="gn-logo" aria-label="GR6 News - Trang chủ">
+                    <span class="gn-logo-text">GR6 <b>NEWS</b></span>
+                    <span class="gn-tagline">Tin tức · Góc nhìn · Đời sống</span>
+                </a>
+
+                <div class="gn-mast-right">
+                    <div class="d-none d-md-flex align-items-center gap-2">
+                        {{#if isWriter}}<a href="/writer" class="gn-role-link"><i class="bi bi-pen"></i> Viết bài</a>{{/if}}
+                        {{#if isEditor}}<a href="/editor" class="gn-role-link"><i class="bi bi-journal-check"></i> Duyệt bài</a>{{/if}}
+                        {{#if isAdmin}}<a href="/administrator" class="gn-role-link is-admin"><i class="bi bi-shield-lock"></i> Quản trị</a>{{/if}}
+                    </div>
+
+                    {{#if auth}}
+                    <div class="dropdown">
+                        <button class="gn-user" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="gn-avatar">{{getFirstLetter authUser.username}}</span>
+                            <span class="d-none d-sm-inline">{{authUser.username}}</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end gn-menu">
+                            <li class="gn-menu-head">
+                                <div class="gn-name">{{authUser.username}}</div>
+                                <div class="gn-role">{{authUser.role}}</div>
+                            </li>
+                            <li><a class="dropdown-item" href="/user/profile"><i class="bi bi-person"></i> Hồ sơ cá nhân</a></li>
+                            {{#if isReader}}<li><a class="dropdown-item" href="/user/saved"><i class="bi bi-bookmark"></i> Bài đã lưu</a></li>{{/if}}
+                            {{#if isWriter}}<li><a class="dropdown-item" href="/writer"><i class="bi bi-pen"></i> Writer Workspace</a></li>{{/if}}
+                            {{#if isEditor}}<li><a class="dropdown-item" href="/editor"><i class="bi bi-journal-check"></i> Editor Desk</a></li>{{/if}}
+                            {{#if isAdmin}}<li><a class="dropdown-item" href="/administrator"><i class="bi bi-shield-lock"></i> Admin Dashboard</a></li>{{/if}}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="/auth/logout" method="post" class="m-0">
+                                    <button type="submit" class="dropdown-item is-danger"><i class="bi bi-box-arrow-right"></i> Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                    {{else}}
+                    <a href="/auth/login" class="gn-signin">Đăng nhập</a>
+                    {{/if}}
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <!-- TẦNG 2: THANH CHUYÊN MỤC (DÍNH KHI CUỘN) -->
+    <nav class="gn-catbar gn-scope" id="gnCatbar" aria-label="Chuyên mục">
+        <div class="gn-wrap">
+            <a href="/" class="gn-mini-logo" aria-hidden="true" tabindex="-1">GR6 <b>NEWS</b></a>
+
+            <ul class="gn-cats">
+                <li class="gn-cat">
+                    <a href="/" class="gn-cat-link {{#if (eq navSection 'home')}}is-active{{/if}}"><i class="bi bi-house-door"></i> Trang chủ</a>
+                </li>
+                <li class="gn-cat">
+                    <a href="/latest" class="gn-cat-link {{#if (eq navSection 'latest')}}is-active{{/if}}">Mới nhất</a>
+                </li>
+                {{#each navCategoriesLimited}}
+                <li class="gn-cat">
+                    <a href="/category?name={{this.name}}" class="gn-cat-link {{#if (eq @root.currentCategory this.name)}}is-active{{/if}}">{{this.name}}</a>
+                    {{#if this.tags.length}}
+                    <div class="gn-tags">
+                        <div class="gn-tags-label">Chủ đề nổi bật</div>
+                        {{#each this.tags}}
+                        <a href="/search?q={{this.name}}">#{{this.name}}</a>
+                        {{/each}}
+                    </div>
+                    {{/if}}
+                </li>
+                {{/each}}
+
+                <li class="gn-cat gn-more">
+                    <a href="#" class="gn-cat-link" onclick="return false;"><i class="bi bi-grid-3x3-gap"></i> Tất cả <i class="bi bi-chevron-down"></i></a>
+                    <div class="gn-mega">
+                        <div class="gn-wrap">
+                            <div class="gn-mega-grid">
+                                {{#each navCategoriesAll}}
+                                <div>
+                                    <a href="/category?name={{this.name}}" class="gn-mega-title">{{this.name}}</a>
+                                    {{#each this.tags}}
+                                    <a href="/search?q={{this.name}}" class="gn-mega-tag">#{{this.name}}</a>
+                                    {{/each}}
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="gn-bar-actions">
+                <button class="gn-icon-btn" id="gnSearchBtn" type="button" aria-label="Tìm kiếm" aria-expanded="false" aria-controls="gnSearch">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- KHUNG TÌM KIẾM -->
+        <div class="gn-search" id="gnSearch">
+            <div class="gn-wrap">
+                <form action="/search" method="get" role="search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="q" id="gnSearchInput" placeholder="Bạn muốn đọc gì hôm nay?" autocomplete="off">
+                    <span class="gn-kbd d-none d-md-inline">Esc</span>
+                    <button type="button" class="gn-icon-btn" id="gnSearchClose" aria-label="Đóng"><i class="bi bi-x-lg"></i></button>
+                </form>
+                <div class="gn-search-hint">
+                    <span>Gợi ý</span>
+                    {{#each navCategoriesLimited}}
+                    <a href="/category?name={{this.name}}" class="gn-chip">{{this.name}}</a>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+
+        <div class="gn-progress" id="gnProgress"></div>
+    </nav>
+
+    <!-- MENU MOBILE -->
+    <div class="offcanvas offcanvas-start gn-offcanvas gn-scope" tabindex="-1" id="gnOffcanvas" aria-label="Menu">
+        <div class="offcanvas-header">
+            <a href="/" class="gn-logo-text" style="font-size:1.5rem">GR6 <b>NEWS</b></a>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form action="/search" method="get" class="gn-off-search">
+                <i class="bi bi-search text-muted"></i>
+                <input type="text" name="q" placeholder="Tìm kiếm bài viết...">
+            </form>
+
+            {{#if auth}}
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="gn-avatar" style="width:40px;height:40px;font-size:15px">{{getFirstLetter authUser.username}}</span>
+                <div>
+                    <div class="fw-bold text-dark">{{authUser.username}}</div>
+                    <div class="text-muted text-capitalize" style="font-size:12px">{{authUser.role}}</div>
+                </div>
+            </div>
+            {{else}}
+            <a href="/auth/login" class="gn-signin d-block text-center mb-2">Đăng nhập</a>
+            {{/if}}
+
+            <div class="gn-off-label">Khám phá</div>
+            <a href="/" class="gn-off-link {{#if (eq navSection 'home')}}is-active{{/if}}">Trang chủ <i class="bi bi-chevron-right"></i></a>
+            <a href="/latest" class="gn-off-link {{#if (eq navSection 'latest')}}is-active{{/if}}">Tin mới nhất <i class="bi bi-chevron-right"></i></a>
+
+            <div class="gn-off-label">Chuyên mục</div>
+            {{#each navCategoriesAll}}
+            <a href="/category?name={{this.name}}" class="gn-off-link {{#if (eq @root.currentCategory this.name)}}is-active{{/if}}">{{this.name}} <i class="bi bi-chevron-right"></i></a>
+            {{/each}}
+
+            {{#if auth}}
+            <div class="gn-off-label">Tài khoản</div>
+            {{#if isWriter}}<a href="/writer" class="gn-off-link">Writer Workspace <i class="bi bi-pen"></i></a>{{/if}}
+            {{#if isEditor}}<a href="/editor" class="gn-off-link">Editor Desk <i class="bi bi-journal-check"></i></a>{{/if}}
+            {{#if isAdmin}}<a href="/administrator" class="gn-off-link">Admin Dashboard <i class="bi bi-shield-lock"></i></a>{{/if}}
+            {{#if isReader}}<a href="/user/saved" class="gn-off-link">Bài đã lưu <i class="bi bi-bookmark"></i></a>{{/if}}
+            <a href="/user/profile" class="gn-off-link">Hồ sơ cá nhân <i class="bi bi-person"></i></a>
+            <form action="/auth/logout" method="post" class="m-0">
+                <button type="submit" class="gn-off-link w-100 border-0 bg-transparent text-danger">Đăng xuất <i class="bi bi-box-arrow-right"></i></button>
+            </form>
+            {{/if}}
+        </div>
+    </div>
+
+    <main style="background-color: #fbfbfb;">{{{body}}}</main>
+
+    <!-- Footer giữ nguyên -->
+    <footer>
+        <div class="footer_container">
+            <div class="footr_details_one">
+                <h3>Get to Know US</h3>
+                <a href="/about" class="footer-link">About us</a>
+            </div>
+            <div class="footr_details_one">
+                <h3>Connect with Us</h3>
+                <p><a href="https://www.facebook.com/congdongvnexpress"><i class="fab fa-facebook-square"></i> Facebook</a></p>
+                <p><a href="https://x.com/vietnamenglish"><i class="fab fa-twitter-square"></i> Twitter</a></p>
+                <p><a href="https://www.instagram.com/vnexpress.official/"><i class="fab fa-instagram-square"></i> Instagram</a></p>
+            </div>
+            <div class="footr_details_one forres">
+                <h3>Make Money with Us</h3>
+                <p><a href="https://www.facebook.com/congdongvnexpress"><i class="fab fa-facebook-square"></i> Facebook</a></p>
+                <p><a href="https://x.com/vietnamenglish"><i class="fab fa-twitter-square"></i> Twitter</a></p>
+                <p><a href="https://www.instagram.com/vnexpress.official/"><i class="fab fa-instagram-square"></i> Instagram</a></p>
+            </div>
+        </div>
+        <div class="lastdetails">
+            <p>Conditions of Use & Sale &nbsp;&nbsp;&nbsp; Privacy Notice &nbsp;&nbsp;&nbsp; Interest-Based Ads &nbsp;&nbsp;&nbsp; © 2024-{{currentYear}} GR6 News</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <script>
+    (function () {
+        // --- Ngày tháng (tiếng Việt) ---
+        const now = new Date();
+        const vi = (o) => now.toLocaleDateString('vi-VN', o);
+        const dt = document.getElementById("datetime");
+        if (dt) dt.textContent = vi({ weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+        const wd = document.getElementById("gnWeekday");
+        if (wd) wd.textContent = vi({ weekday: 'long' }).replace(/^./, c => c.toUpperCase());
+        const d = document.getElementById("gnDate");
+        if (d) d.textContent = vi({ day: 'numeric', month: 'long', year: 'numeric' });
+
+        // --- Thanh chuyên mục: đổ bóng + hiện logo nhỏ khi đã cuộn qua masthead ---
+        const catbar = document.getElementById("gnCatbar");
+        const mast = document.getElementById("gnMasthead");
+        if (catbar && mast && "IntersectionObserver" in window) {
+            new IntersectionObserver(([e]) => catbar.classList.toggle("is-stuck", !e.isIntersecting))
+                .observe(mast);
+        }
+
+        // --- Thanh tiến độ cuộn ---
+        const bar = document.getElementById("gnProgress");
+        let ticking = false;
+        function updateProgress() {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.transform = "scaleX(" + (h > 0 ? Math.min(window.scrollY / h, 1) : 0) + ")";
+            ticking = false;
+        }
+        if (bar) {
+            window.addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(updateProgress); } }, { passive: true });
+            updateProgress();
+        }
+
+        // --- Tìm kiếm: mở/đóng, phím "/" để mở, Esc để đóng ---
+        const search = document.getElementById("gnSearch");
+        const btn = document.getElementById("gnSearchBtn");
+        const input = document.getElementById("gnSearchInput");
+        function setSearch(open) {
+            search.classList.toggle("is-open", open);
+            btn.setAttribute("aria-expanded", open);
+            btn.innerHTML = open ? '<i class="bi bi-x-lg"></i>' : '<i class="bi bi-search"></i>';
+            if (open) setTimeout(() => input.focus(), 80);
+        }
+        btn.addEventListener("click", () => setSearch(!search.classList.contains("is-open")));
+        document.getElementById("gnSearchClose").addEventListener("click", () => setSearch(false));
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && search.classList.contains("is-open")) setSearch(false);
+            const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+            if (e.key === "/" && !typing) { e.preventDefault(); setSearch(true); }
+        });
+        document.addEventListener("click", (e) => {
+            if (search.classList.contains("is-open") && !catbar.contains(e.target)) setSearch(false);
+        });
+    })();
+    </script>
+</body>
+</html>

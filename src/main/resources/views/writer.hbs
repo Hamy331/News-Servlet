@@ -1,0 +1,215 @@
+<link rel="stylesheet" href="/css/writer.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="article-management">
+    <div class="container" style="max-width: 900px;">
+        
+        <div class="d-flex align-items-center mb-4 mt-2" data-aos="fade-down">
+            <i class="bi bi-pen-fill fs-3 me-3 text-danger"></i> 
+            <h1 class="writer-page-title mb-0">Writer Workspace</h1>
+        </div>
+
+        <!-- TÓM TẮT BÀI CỦA TÔI -->
+        <a href="/writer/articles" class="wr-summary" data-aos="fade-up">
+            <div class="wr-summary-item"><b>{{counts.total}}</b><span>Bài của tôi</span></div>
+            <div class="wr-summary-item"><b class="text-warning">{{counts.pending}}</b><span>Chờ duyệt</span></div>
+            <div class="wr-summary-item"><b class="text-danger">{{counts.rejected}}</b><span>Cần sửa</span></div>
+            <div class="wr-summary-item"><b class="text-success">{{counts.published}}</b><span>Đã đăng</span></div>
+            <span class="wr-summary-go">Quản lý bài viết <i class="bi bi-arrow-right"></i></span>
+        </a>
+        <style>
+            .wr-summary { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: #fff; border: 1px solid #eaeaea; border-radius: 12px; padding: 14px 20px; margin-bottom: 1.5rem; text-decoration: none; color: inherit; transition: box-shadow .2s, border-color .2s; }
+            .wr-summary:hover { border-color: #111; box-shadow: 0 8px 20px rgba(0,0,0,.05); }
+            .wr-summary-item { display: flex; align-items: baseline; gap: 6px; padding-right: 18px; margin-right: 10px; border-right: 1px solid #eee; }
+            .wr-summary-item b { font-family: 'Lora', serif; font-size: 1.35rem; color: #111; }
+            .wr-summary-item span { font-size: .82rem; color: #777; font-weight: 600; }
+            .wr-summary-go { margin-left: auto; font-weight: 600; font-size: .9rem; color: #111; }
+            @media (max-width: 575.98px) { .wr-summary-item { border: 0; padding-right: 6px; margin-right: 4px; } .wr-summary-go { margin-left: 0; width: 100%; } }
+        </style>
+
+        <!-- KHU VỰC 1: VIẾT BÀI MỚI -->
+        <section class="writer-card" data-aos="fade-up" data-aos-duration="800">
+            <h2 class="writer-card-title"><i class="bi bi-file-earmark-plus me-2 text-muted"></i> Khởi tạo bài viết mới</h2>
+            
+            <form id="submitArticleForm">
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <label for="title" class="form-label">Tiêu đề bài viết <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" required placeholder="Nhập tiêu đề thu hút độc giả...">
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <label for="category" class="form-label">Chuyên mục <span class="text-danger">*</span></label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="" disabled selected>-- Chọn chuyên mục --</option>
+                            {{#each category }}
+                            <option value="{{this._id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="summary" class="form-label">Mô tả ngắn (Lead/Summary) <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="summary" name="summary" rows="3" required placeholder="Đoạn sapo (tóm tắt) hiển thị ngoài trang chủ, 2-3 câu..."></textarea>
+                    <div class="form-text text-muted mt-1" style="font-size: 0.8rem;">Đoạn tóm tắt này cực kỳ quan trọng để thu hút người dùng click vào bài báo.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="content" class="form-label">Nội dung chi tiết <span class="text-danger">*</span></label>
+                    <div class="border rounded">
+                        <textarea id="content" name="content"></textarea>
+                    </div>
+                </div>
+
+                <!-- KHU VỰC GẮN THẺ TAGS -->
+                <div class="tags-container mb-4">
+                    <label for="tags" class="form-label"><i class="bi bi-tags me-1"></i> Gắn thẻ Từ khóa (Giữ Ctrl/Cmd để chọn nhiều)</label>
+                    <select id="tags" name="tags[]" class="form-select mb-3" multiple size="4" onchange="updateSelectedTags()">
+                        {{#each tag }}
+                        <option value="{{this._id}}" class="py-1 border-bottom">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+
+                    <div id="selected-tags-container" class="bg-white p-3 rounded border">
+                        <p class="form-label text-muted mb-2" style="font-size: 0.85rem;">Các thẻ đang chọn:</p>
+                        <span id="empty-tags-message" class="text-muted fst-italic" style="font-size: 0.85rem;">Chưa chọn tag nào...</span>
+                        <div id="selected-tags-list" class="selected-tags"></div>
+                    </div>
+                </div>
+
+                <!-- ĐA PHƯƠNG TIỆN -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="image" class="form-label"><i class="bi bi-image me-1"></i> Link ảnh bìa (Thumbnail)</label>
+                        <input type="url" class="form-control" id="image" name="image_url" placeholder="https://domain.com/image.jpg">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="video" class="form-label"><i class="bi bi-youtube me-1"></i> Link YouTube đính kèm</label>
+                        <input type="url" class="form-control" id="video" name="video_url" placeholder="https://youtube.com/watch?v=...">
+                    </div>
+                </div>
+
+                <div class="text-end mt-4 pt-3 border-top">
+                    <button type="submit" id="submitBtn" class="btn-submit">
+                        <i class="bi bi-send me-1"></i> Gửi bài lên Tòa soạn
+                    </button>
+                </div>
+            </form>
+        </section>
+
+
+
+    </div>
+</div>
+
+<script>
+    // KÍCH HOẠT HIỆU ỨNG AOS
+    AOS.init({ once: true });
+
+    // --- 1. CẤU HÌNH CKEDITOR ---
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof CKEditor !== 'undefined' || typeof window.CKEDITOR !== 'undefined') {
+            CKEDITOR.config.versionCheck = false;
+            // Gọi đúng ID 'content' của textarea
+            CKEDITOR.replace('content', {
+                versionCheck: false,
+                removePlugins: 'versioncheck', 
+                height: 400
+            });
+        } else {
+            console.error("Thư viện CKEditor chưa được tải.");
+        }
+    });
+
+    // --- 2. XỬ LÝ GIAO DIỆN THẺ TAGS CHUYÊN NGHIỆP ---
+    function updateSelectedTags() {
+        const select = document.getElementById('tags');
+        const container = document.getElementById('selected-tags-list');
+        const emptyMessage = document.getElementById('empty-tags-message');
+        
+        container.innerHTML = ''; 
+
+        if (select.selectedOptions.length === 0) {
+            emptyMessage.style.display = 'inline';
+            return; 
+        } else {
+            emptyMessage.style.display = 'none';
+        }
+
+        Array.from(select.selectedOptions).forEach(option => {
+            const tagChip = document.createElement('div');
+            tagChip.className = 'custom-chip'; 
+            
+            tagChip.innerHTML = `
+                ${option.text} 
+                <span class="custom-chip-remove" onclick="removeTag('${option.value}')" title="Xóa tag này"><i class="bi bi-x-circle-fill"></i></span>
+            `;
+            container.appendChild(tagChip);
+        });
+    }
+
+    function removeTag(value) {
+        const select = document.getElementById('tags');
+        const option = select.querySelector(`option[value="${value}"]`);
+        if (option) {
+            option.selected = false;
+            updateSelectedTags(); 
+        }
+    }
+
+    // --- 3. XỬ LÝ GỬI FORM BẰNG AJAX VỚI HIỆU ỨNG SWEETALERT ---
+    document.getElementById('submitArticleForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+        // Ép dữ liệu từ CKEditor vào Textarea ẩn trước khi FormData lấy giá trị
+        for (let instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+
+        const formData = new FormData(this);
+        const urlEncodedData = new URLSearchParams(formData);
+
+        try {
+            const response = await fetch('/writer/submit_article', { 
+                method: 'POST',
+                body: urlEncodedData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+
+            if (!response.ok) throw new Error("Lỗi mạng hoặc sai URL API");
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng bài thành công!',
+                    text: 'Bài báo của bạn đã được chuyển đến bộ phận Biên tập viên.',
+                    confirmButtonColor: '#111'
+                }).then(() => {
+                    window.location.href = "/writer/articles";
+                });
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra!',
+                text: 'Không thể đăng bài viết lúc này. Vui lòng kiểm tra lại.',
+                confirmButtonColor: '#d93025'
+            });
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
+    });
+</script>

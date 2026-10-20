@@ -1,0 +1,17 @@
+# Render Blueprint (tuỳ chọn): New → Blueprint → chọn repo là Render tự tạo Web Service này
+services:
+  - type: web
+    name: gr6-news
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /about
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

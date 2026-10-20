@@ -1,0 +1,167 @@
+.hello {
+  margin-left: 20px;
+  font-size: 35px;
+  border-radius: 8px;
+  padding: 0 12px 0 12px;
+  height: 50px;
+  line-height: 50px;
+  border: oldlace 1px solid;
+  align-items: center;
+  justify-self: center;
+  max-width: fit-content;
+}
+
+.logout {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  border: white 1px solid;
+  border-radius: 8px;
+  padding: 3px 5px;
+}
+
+.logout:hover {
+  background-color: aliceblue;
+  color: black;
+}
+
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.logo {
+  height: 70px; /* Adjust the height of the logo */
+  width: auto;
+  display: block;
+}
+
+.navbar {
+  zoom: 0.8;
+  background: #232f3e;
+  font-family: calibri;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  height: 110px;
+  display: flex;
+  color: white;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.nav_div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  width: 100%;
+}
+
+.nav_right {
+  display: flex;
+  /* flex: 1; */
+  align-items: center;
+  margin-right: 30px;
+}
+
+.nav_left {
+  max-height: 100%;
+}
+
+.nav_left ul,
+ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.child_nav_right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav_left ul li p {
+  margin: 0;
+  display: inline-block;
+  color: white;
+  padding-right: 10px;
+}
+
+.search-container {
+  position: relative;
+  display: flex;
+  flex: 1;
+}
+
+.search {
+  height: 40px;
+  width: 100%;
+  border-radius: 60px;
+  outline: none;
+  border: 2px solid #232f3e;
+  padding-right: 42px;
+  padding-left: 25px;
+  text-align: left;
+}
+
+.btnSearch {
+  position: absolute;
+  right: 9px;
+  bottom: 4px;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: #232f3e;
+  cursor: pointer;
+}
+
+.navbar li {
+  color: white;
+  list-style: none;
+  margin-right: 10px;
+}
+
+.navbar li a {
+  color: white;
+  font-size: 25px;
+  font-weight: none;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+.navbar li a:hover {
+  color: #000000; /* hover effect */
+}
+
+@media (max-width: 767px) {
+  .latest_link {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1220px) {
+  .date_now {
+    display: none !important;
+  }
+
+  .nav_right {
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .child_nav_right {
+    width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .no_date_now {
+    display: none !important;
+  }
+}

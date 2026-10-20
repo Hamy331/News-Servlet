@@ -1,0 +1,149 @@
+<link rel="stylesheet" href="/css/magazine.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<div class="mz-page py-5">
+  <div class="container">
+
+    <!-- ================= TIÊU ĐỀ TRANG ================= -->
+    <header class="mz-page-head" data-aos="fade-down" data-aos-duration="800">
+      <div class="mz-breadcrumb">
+        <a href="/">Home</a> / <span class="mz-current">{{CategoryName}}</span>
+      </div>
+      <h1 class="mz-page-title">{{CategoryName}}</h1>
+      {{#if des}}<p class="mz-page-desc">{{des}}</p>{{/if}}
+    </header>
+
+    <!-- ================= BÀI NỔI BẬT ================= -->
+    {{#if article1}}
+    <a href="/details?id={{article1._id}}" class="mz-feature mz-hover" data-aos="fade-up" data-aos-duration="900">
+      <div class="mz-thumb">
+        <span class="mz-badge">Nổi bật</span>
+        <img src="{{article1.image_url.[0]}}" alt="{{article1.title}}"
+             onerror="this.onerror=null;this.src='https://placehold.co/1000x700/eeeeee/999999?text=No+Image';">
+      </div>
+      <div class="mz-feature-body">
+        {{#if article1.category.name}}<span class="mz-kicker">{{article1.category.name}}</span>{{/if}}
+        <h2 class="mz-headline mz-headline--xl mz-clamp-3">{{article1.title}}</h2>
+        {{#if article1.summary}}<p class="mz-summary mz-clamp-3">{{article1.summary}}</p>{{/if}}
+        <div class="mz-meta">
+          <span><i class="bi bi-calendar3"></i>{{formatDate (or article1.publishedAt article1.createdAt)}}</span>
+          <span><i class="bi bi-eye"></i>{{article1.views}} lượt xem</span>
+        </div>
+      </div>
+    </a>
+    {{/if}}
+
+    {{#if article2}}
+    <div class="row g-4 mt-1" data-aos="fade-up" data-aos-duration="1000">
+      {{#if article2}}
+      <div class="col-md-4">
+        <a href="/details?id={{article2._id}}" class="mz-card mz-hover">
+          <div class="mz-thumb">
+            <img src="{{article2.image_url.[0]}}" alt="{{article2.title}}"
+                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+          </div>
+          <div class="mz-card-body">
+            {{#if article2.category.name}}<span class="mz-kicker">{{article2.category.name}}</span>{{/if}}
+            <h3 class="mz-headline mz-headline--md mz-clamp-3">{{article2.title}}</h3>
+            <div class="mz-meta">
+              <span><i class="bi bi-calendar3"></i>{{formatDate (or article2.publishedAt article2.createdAt)}}</span>
+              <span><i class="bi bi-eye"></i>{{article2.views}}</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      {{/if}}
+      {{#if article3}}
+      <div class="col-md-4">
+        <a href="/details?id={{article3._id}}" class="mz-card mz-hover">
+          <div class="mz-thumb">
+            <img src="{{article3.image_url.[0]}}" alt="{{article3.title}}"
+                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+          </div>
+          <div class="mz-card-body">
+            {{#if article3.category.name}}<span class="mz-kicker">{{article3.category.name}}</span>{{/if}}
+            <h3 class="mz-headline mz-headline--md mz-clamp-3">{{article3.title}}</h3>
+            <div class="mz-meta">
+              <span><i class="bi bi-calendar3"></i>{{formatDate (or article3.publishedAt article3.createdAt)}}</span>
+              <span><i class="bi bi-eye"></i>{{article3.views}}</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      {{/if}}
+      {{#if article4}}
+      <div class="col-md-4">
+        <a href="/details?id={{article4._id}}" class="mz-card mz-hover">
+          <div class="mz-thumb">
+            <img src="{{article4.image_url.[0]}}" alt="{{article4.title}}"
+                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+          </div>
+          <div class="mz-card-body">
+            {{#if article4.category.name}}<span class="mz-kicker">{{article4.category.name}}</span>{{/if}}
+            <h3 class="mz-headline mz-headline--md mz-clamp-3">{{article4.title}}</h3>
+            <div class="mz-meta">
+              <span><i class="bi bi-calendar3"></i>{{formatDate (or article4.publishedAt article4.createdAt)}}</span>
+              <span><i class="bi bi-eye"></i>{{article4.views}}</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <!-- ================= DANH SÁCH + SIDEBAR ================= -->
+    <div class="row g-4 g-lg-5 mz-section">
+      <div class="col-lg-8" data-aos="fade-up" data-aos-duration="1000">
+        <div class="mz-section-head">
+          <h2 class="mz-section-title">Tất cả bài viết</h2>
+        </div>
+
+        {{#each article}}
+        <a href="/details?id={{this._id}}" class="mz-row mz-hover">
+          <div class="mz-thumb">
+            <img src="{{this.image_url.[0]}}" alt="{{this.title}}"
+                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+          </div>
+          <div class="mz-row-body">
+            {{#if this.category.name}}<span class="mz-kicker">{{this.category.name}}</span>{{/if}}
+            <h3 class="mz-headline mz-headline--lg mz-clamp-2">{{this.title}}</h3>
+            {{#if this.summary}}<p class="mz-summary mz-clamp-2">{{this.summary}}</p>{{/if}}
+            <div class="mz-meta">
+              {{#if this.author.username}}<span><i class="bi bi-pen"></i>{{this.author.username}}</span>{{/if}}
+              <span><i class="bi bi-calendar3"></i>{{formatDate (or this.publishedAt this.createdAt)}}</span>
+              <span><i class="bi bi-eye"></i>{{this.views}}</span>
+            </div>
+          </div>
+        </a>
+        {{else}}
+        <div class="mz-empty"><i class="bi bi-inbox"></i>Chưa có thêm bài viết nào.</div>
+        {{/each}}
+      </div>
+
+      <aside class="col-lg-4" data-aos="fade-left" data-aos-duration="1000">
+        <div class="mz-sticky">
+          <h5 class="mz-side-title mz-side-title--red">Tin mới nhất</h5>
+          {{#each newest5Articles}}
+          <a href="/details?id={{this._id}}" class="mz-mini mz-hover">
+            <div class="mz-thumb">
+              <img src="{{this.image_url.[0]}}" alt=""
+                   onerror="this.onerror=null;this.src='https://placehold.co/200x150/eeeeee/999999?text=No+Image';">
+            </div>
+            <div>
+              <h4 class="mz-headline mz-clamp-3">{{this.title}}</h4>
+              <div class="mz-meta mt-1"><span><i class="bi bi-clock"></i>{{formatDate (or this.publishedAt this.createdAt)}}</span></div>
+            </div>
+          </a>
+          {{/each}}
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  AOS.init({ once: true });
+</script>

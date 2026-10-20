@@ -1,0 +1,158 @@
+<link rel="stylesheet" href="/css/magazine.css">
+
+<style>
+  .sv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .sv-count { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; background: #111; color: #fff; font-size: 0.88rem; font-weight: 600; }
+  .sv-count b { font-family: 'Lora', serif; font-size: 1.1rem; }
+
+  .sv-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+  .sv-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sv-chip { padding: 7px 15px; border-radius: 999px; border: 1px solid #e3e3e3; background: #fff; font-size: 0.85rem; font-weight: 600; color: #444; text-transform: capitalize; cursor: pointer; transition: all 0.15s; }
+  .sv-chip:hover { border-color: #111; color: #111; }
+  .sv-chip.is-active { background: #111; border-color: #111; color: #fff; }
+  .sv-find { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e3e3e3; border-radius: 999px; padding: 7px 14px; min-width: 240px; }
+  .sv-find input { border: 0; outline: 0; background: transparent; font-size: 0.9rem; flex: 1; min-width: 0; }
+  .sv-find:focus-within { border-color: #111; }
+
+  .sv-item { transition: opacity 0.3s, transform 0.3s; }
+  .sv-item.is-removing { opacity: 0; transform: scale(0.96); }
+  .sv-card .mz-thumb { position: relative; }
+  .sv-card .mz-thumb > a { display: block; height: 100%; }
+  .sv-unsave {
+    position: absolute; top: 12px; right: 12px; z-index: 3;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 0; background: rgba(17,17,17,0.85); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s; backdrop-filter: blur(6px);
+  }
+  .sv-unsave:hover { background: #d93025; transform: scale(1.06); }
+  .sv-saved-at { font-size: 0.78rem; color: #999; display: inline-flex; align-items: center; gap: 5px; }
+
+  .sv-empty { text-align: center; padding: 72px 24px; background: #fff; border: 1px dashed #ddd; border-radius: 16px; }
+  .sv-empty-icon { width: 84px; height: 84px; margin: 0 auto 18px; border-radius: 50%; background: #fdecea; color: #d93025; display: flex; align-items: center; justify-content: center; font-size: 2.1rem; }
+  .sv-empty h2 { font-family: 'Lora', serif; font-size: 1.7rem; font-weight: 700; color: #111; margin: 0 0 8px; }
+  .sv-empty p { color: #666; max-width: 420px; margin: 0 auto 22px; line-height: 1.6; }
+  .sv-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 999px; background: #111; color: #fff !important; font-weight: 600; font-size: 0.92rem; transition: background 0.2s; }
+  .sv-btn:hover { background: #d93025; }
+  .sv-hidden { display: none !important; }
+</style>
+
+<div class="mz-page py-5">
+  <div class="container">
+
+    <header class="mz-page-head sv-head">
+      <div>
+        <div class="mz-breadcrumb"><a href="/">Home</a> / <a href="/user/profile">Hồ sơ</a> / <span class="mz-current">Bài đã lưu</span></div>
+        <h1 class="mz-page-title">Bài đã lưu</h1>
+        <p class="mz-page-desc">Những bài viết bạn đánh dấu để đọc lại sau.</p>
+      </div>
+      {{#if saved.length}}<span class="sv-count"><i class="bi bi-bookmark-fill"></i><b id="svTotal">{{saved.length}}</b> bài</span>{{/if}}
+    </header>
+
+    {{#if saved.length}}
+    <div class="sv-toolbar">
+      <div class="sv-chips" role="group" aria-label="Lọc theo chuyên mục">
+        <button type="button" class="sv-chip is-active" data-cat="">Tất cả</button>
+        {{#each categories}}<button type="button" class="sv-chip" data-cat="{{this}}">{{this}}</button>{{/each}}
+      </div>
+      <label class="sv-find">
+        <i class="bi bi-search text-muted"></i>
+        <input type="search" id="svFind" placeholder="Tìm trong bài đã lưu..." aria-label="Tìm trong bài đã lưu">
+      </label>
+    </div>
+
+    <div class="row g-4" id="svGrid">
+      {{#each saved}}
+      <div class="col-sm-6 col-lg-4 sv-item" data-id="{{this.article._id}}" data-cat="{{this.article.category.name}}" data-text="{{this.article.title}} {{this.article.summary}}">
+        <article class="mz-card mz-hover sv-card">
+          <div class="mz-thumb">
+            <button type="button" class="sv-unsave" title="Bỏ lưu" aria-label="Bỏ lưu bài viết"><i class="bi bi-bookmark-x"></i></button>
+            <a href="/details?id={{this.article._id}}" tabindex="-1">
+              <img src="{{this.article.image_url.[0]}}" alt="{{this.article.title}}"
+                   onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+            </a>
+          </div>
+          <a href="/details?id={{this.article._id}}" class="mz-card-body">
+            {{#if this.article.category.name}}<span class="mz-kicker">{{this.article.category.name}}</span>{{/if}}
+            <h3 class="mz-headline mz-headline--md mz-clamp-3">{{this.article.title}}</h3>
+            {{#if this.article.summary}}<p class="mz-summary mz-clamp-2" style="font-size:0.9rem">{{this.article.summary}}</p>{{/if}}
+            <div class="mz-meta">
+              <span class="sv-saved-at"><i class="bi bi-bookmark-check"></i>Lưu {{formatDate this.savedAt}}</span>
+              <span><i class="bi bi-eye"></i>{{this.article.views}}</span>
+            </div>
+          </a>
+        </article>
+      </div>
+      {{/each}}
+    </div>
+    <p id="svNoMatch" class="text-center text-muted fst-italic py-5 sv-hidden">Không có bài nào khớp bộ lọc.</p>
+    {{/if}}
+
+    <div class="sv-empty {{#if saved.length}}sv-hidden{{/if}}" id="svEmpty">
+      <div class="sv-empty-icon"><i class="bi bi-bookmark-heart"></i></div>
+      <h2>Chưa có bài nào được lưu</h2>
+      <p>Bấm nút <strong><i class="bi bi-bookmark"></i> Lưu bài</strong> trên trang bài viết để giữ lại những câu chuyện bạn muốn đọc sau.</p>
+      <a href="/latest" class="sv-btn">Khám phá tin mới <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  const grid = document.getElementById("svGrid");
+  if (!grid) return;
+  const items = () => Array.from(grid.querySelectorAll(".sv-item"));
+  const find = document.getElementById("svFind");
+  let activeCat = "";
+
+  function applyFilter() {
+    const q = (find.value || "").trim().toLowerCase();
+    let shown = 0;
+    items().forEach(function (el) {
+      const ok = (!activeCat || el.dataset.cat === activeCat) && (!q || el.dataset.text.toLowerCase().includes(q));
+      el.classList.toggle("sv-hidden", !ok);
+      if (ok) shown++;
+    });
+    document.getElementById("svNoMatch").classList.toggle("sv-hidden", shown > 0 || items().length === 0);
+  }
+
+  document.querySelectorAll(".sv-chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      document.querySelectorAll(".sv-chip").forEach((c) => c.classList.toggle("is-active", c === chip));
+      activeCat = chip.dataset.cat;
+      applyFilter();
+    });
+  });
+  find.addEventListener("input", applyFilter);
+
+  // Bỏ lưu ngay trên danh sách
+  grid.addEventListener("click", async function (e) {
+    const btn = e.target.closest(".sv-unsave");
+    if (!btn) return;
+    const item = btn.closest(".sv-item");
+    btn.disabled = true;
+    try {
+      const res = await fetch("/user/saved/" + item.dataset.id, { method: "POST", headers: { "Accept": "application/json" } });
+      const data = await res.json();
+      if (data.redirect) { location.href = data.redirect; return; }
+      if (!data.success || data.saved) { btn.disabled = false; return; }
+      item.classList.add("is-removing");
+      setTimeout(function () {
+        item.remove();
+        const left = items().length;
+        const total = document.getElementById("svTotal");
+        if (total) total.textContent = left;
+        if (left === 0) {
+          document.querySelector(".sv-toolbar")?.remove();
+          document.querySelector(".sv-count")?.remove();
+          document.getElementById("svEmpty").classList.remove("sv-hidden");
+        }
+        applyFilter();
+      }, 300);
+    } catch (err) {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>

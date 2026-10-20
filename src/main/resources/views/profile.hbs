@@ -1,0 +1,328 @@
+<link rel="stylesheet" href="/css/workspace.css">
+
+<style>
+  /* Trung hoà font-size 23px toàn cục của home.css khi trang chạy trong layout trang báo */
+  /* Độ ưu tiên (0,0,1): thắng rule của home.css nhưng nhường mọi class như .wk-pill, .wk-panel-sub */
+  :where(.wk-profile) a, :where(.wk-profile) p, :where(.wk-profile) li,
+  :where(.wk-profile) h1, :where(.wk-profile) h2, :where(.wk-profile) h3,
+  :where(.wk-profile) h4, :where(.wk-profile) h5, :where(.wk-profile) h6 { font-size: inherit; }
+  .wk-profile { font-size: 15px; }
+
+  .pf-card { background: #fff; border: 1px solid var(--wk-line); border-radius: var(--wk-radius); overflow: hidden; margin-bottom: 24px; }
+  .pf-cover {
+    height: 130px;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(217, 48, 37, 0.55), transparent 45%),
+      radial-gradient(circle at 10% 90%, rgba(13, 110, 253, 0.35), transparent 40%),
+      #111;
+  }
+  .pf-identity { display: flex; align-items: flex-end; gap: 22px; padding: 0 28px 24px; margin-top: -48px; flex-wrap: wrap; }
+  .pf-avatar {
+    width: 104px; height: 104px; border-radius: 50%;
+    border: 5px solid #fff; background: #111; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Lora', serif; font-size: 2.6rem; font-weight: 700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+  }
+  .pf-avatar--administrator { background: var(--wk-red); }
+  .pf-avatar--editor { background: var(--wk-blue); }
+  .pf-avatar--writer { background: var(--wk-green); }
+  .pf-name { font-family: 'Lora', serif; font-size: 1.9rem; font-weight: 700; color: var(--wk-ink); margin: 0; line-height: 1.2; }
+  .pf-handle { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--wk-muted); font-size: 0.92rem; margin-top: 6px; }
+  .pf-handle .sep { width: 4px; height: 4px; border-radius: 50%; background: #ccc; }
+  .pf-identity-main { flex: 1; min-width: 220px; padding-top: 52px; }
+  .pf-identity-actions { display: flex; gap: 8px; padding-bottom: 4px; }
+
+  .pf-section-title { font-size: 1.05rem; font-weight: 700; color: var(--wk-ink); margin: 0; }
+  .pf-field { margin-bottom: 16px; }
+  .pf-field label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--wk-ink); margin-bottom: 6px; }
+  .pf-field .form-control { border-radius: 10px; font-size: 0.95rem; padding: 10px 14px; }
+  .pf-field .form-control[readonly] { background: var(--wk-soft); color: var(--wk-muted); }
+  .pf-hint { font-size: 0.78rem; color: var(--wk-muted); margin-top: 5px; }
+  .pf-pass { position: relative; }
+  .pf-pass .form-control { padding-right: 44px; }
+  .pf-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; color: var(--wk-muted); padding: 6px 8px; cursor: pointer; }
+  .pf-eye:hover { color: var(--wk-ink); }
+
+  /* Danh sách bài của phóng viên */
+  .pf-art { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid #f2f2f2; }
+  .pf-art:last-child { border-bottom: 0; padding-bottom: 0; }
+  .pf-art:first-child { padding-top: 0; }
+  .pf-art .wk-thumb { width: 96px; height: 68px; }
+  .pf-art-body { flex: 1; min-width: 0; }
+  .pf-art-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .pf-art .wk-article-title { font-size: 1.02rem; }
+  .pf-art a.wk-article-title:hover { color: var(--wk-blue); }
+  .pf-reject {
+    margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+    background: #fdf0ef; border: 1px solid #f5cdca; color: #8a2a21;
+    font-size: 0.86rem; line-height: 1.5;
+  }
+  .pf-reject strong { display: block; font-size: 0.75rem; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 2px; }
+
+  .pf-filter { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pf-filter button {
+    border: 1px solid var(--wk-line); background: #fff; border-radius: 999px;
+    padding: 5px 12px; font-size: 0.8rem; font-weight: 600; color: var(--wk-muted); cursor: pointer;
+  }
+  .pf-filter button.active { background: var(--wk-ink); border-color: var(--wk-ink); color: #fff; }
+
+  .pf-sub-card { display: flex; align-items: center; gap: 16px; padding: 18px; border-radius: 12px; background: var(--wk-soft); }
+  .pf-sub-card i { font-size: 1.6rem; color: var(--wk-amber); }
+
+  @media (max-width: 767.98px) {
+    .pf-identity { padding: 0 18px 20px; gap: 14px; }
+    .pf-avatar { width: 84px; height: 84px; font-size: 2.1rem; }
+    .pf-identity-main { padding-top: 0; flex-basis: 100%; }
+    .pf-name { font-size: 1.5rem; }
+  }
+</style>
+
+<div class="wk-page wk-profile">
+  <div class="container">
+
+    {{#if flash}}
+    <div class="wk-flash wk-flash--{{flash.type}}">
+      <i class="bi {{#if (eq flash.type 'success')}}bi-check-circle-fill{{else}}bi-exclamation-circle-fill{{/if}}"></i>
+      <span>{{flash.text}}</span>
+      <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Đóng"></button>
+    </div>
+    {{/if}}
+
+    <!-- ===== DANH THIẾP ===== -->
+    <div class="pf-card">
+      <div class="pf-cover"></div>
+      <div class="pf-identity">
+        <div class="pf-avatar pf-avatar--{{profile.role}}">{{getFirstLetter profile.full_name}}</div>
+        <div class="pf-identity-main">
+          <h1 class="pf-name">{{profile.full_name}}</h1>
+          <div class="pf-handle">
+            <span>@{{profile.username}}</span><span class="sep"></span>
+            <span class="wk-pill wk-pill--{{profile.role}}">{{profile.role}}</span><span class="sep"></span>
+            <span><i class="bi bi-envelope me-1"></i>{{profile.email}}</span>
+          </div>
+        </div>
+        <div class="pf-identity-actions">
+          {{#if (eq profile.role 'writer')}}<a href="/writer" class="wk-btn"><i class="bi bi-pen"></i> Viết bài mới</a>{{/if}}
+          {{#if (eq profile.role 'editor')}}<a href="/editor" class="wk-btn"><i class="bi bi-journal-check"></i> Bàn biên tập</a>{{/if}}
+          {{#if (eq profile.role 'administrator')}}<a href="/administrator" class="wk-btn"><i class="bi bi-speedometer2"></i> Bảng quản trị</a>{{/if}}
+          {{#unless isStaff}}<a href="/latest" class="wk-btn"><i class="bi bi-newspaper"></i> Đọc tin mới</a>{{/unless}}
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== THỐNG KÊ THEO VAI TRÒ ===== -->
+    {{#if (eq profile.role 'writer')}}
+    <div class="wk-stats">
+      <div class="wk-stat"><div class="wk-stat-icon"><i class="bi bi-files"></i></div><div><div class="wk-stat-label">Tổng bài</div><div class="wk-stat-value">{{stats.total}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--green"><i class="bi bi-check2-circle"></i></div><div><div class="wk-stat-label">Đã xuất bản</div><div class="wk-stat-value">{{stats.published}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--amber"><i class="bi bi-hourglass-split"></i></div><div><div class="wk-stat-label">Chờ duyệt</div><div class="wk-stat-value">{{stats.pending}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--red"><i class="bi bi-x-circle"></i></div><div><div class="wk-stat-label">Bị từ chối</div><div class="wk-stat-value">{{stats.rejected}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--blue"><i class="bi bi-eye"></i></div><div><div class="wk-stat-label">Tổng lượt xem</div><div class="wk-stat-value">{{stats.views}}</div></div></div>
+    </div>
+    {{/if}}
+    {{#if (or (eq profile.role 'editor') (eq profile.role 'administrator'))}}
+    <div class="wk-stats">
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--green"><i class="bi bi-check2-circle"></i></div><div><div class="wk-stat-label">Bài đã duyệt</div><div class="wk-stat-value">{{stats.approved}}</div></div></div>
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--red"><i class="bi bi-x-circle"></i></div><div><div class="wk-stat-label">Bài đã từ chối</div><div class="wk-stat-value">{{stats.rejected}}</div></div></div>
+      {{#if (eq profile.role 'editor')}}
+      <div class="wk-stat"><div class="wk-stat-icon wk-stat-icon--blue"><i class="bi bi-grid"></i></div><div><div class="wk-stat-label">Chuyên mục phụ trách</div><div class="wk-stat-value">{{stats.categories}}</div></div></div>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    <div class="row g-4">
+      <!-- ===== CỘT TRÁI: NỘI DUNG THEO VAI TRÒ ===== -->
+      <div class="col-lg-8">
+
+        {{#if (eq profile.role 'writer')}}
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Bài viết của tôi</h2>
+              <p class="wk-panel-sub">Bài bị từ chối kèm ghi chú của biên tập viên để bạn chỉnh sửa.</p>
+            </div>
+            {{#if myArticles.length}}
+            <div class="pf-filter" role="group" aria-label="Lọc theo trạng thái">
+              <button type="button" class="active" data-filter="all">Tất cả</button>
+              <button type="button" data-filter="published">Đã đăng</button>
+              <button type="button" data-filter="pending">Chờ duyệt</button>
+              <button type="button" data-filter="rejected">Từ chối</button>
+            </div>
+            {{/if}}
+          </div>
+
+          {{#each myArticles}}
+          <div class="pf-art" data-status="{{this.status}}">
+            <img class="wk-thumb" src="{{this.image_url.[0]}}" alt=""
+                 onerror="this.onerror=null;this.src='https://placehold.co/192x136/eeeeee/999999?text=No+Image';">
+            <div class="pf-art-body">
+              <div class="pf-art-top">
+                <span class="wk-pill wk-pill--{{this.status}}">
+                  {{#if (eq this.status 'published')}}Đã đăng{{else if (eq this.status 'pending')}}Chờ duyệt{{else if (eq this.status 'rejected')}}Bị từ chối{{else}}Nháp{{/if}}
+                </span>
+                {{#if this.category.name}}<span class="wk-pill wk-pill--cat">{{this.category.name}}</span>{{/if}}
+              </div>
+              {{#if (eq this.status 'published')}}
+              <a href="/details?id={{this._id}}" class="wk-article-title">{{this.title}}</a>
+              {{else}}
+              <div class="wk-article-title">{{this.title}}</div>
+              {{/if}}
+              <div class="wk-meta mt-1">
+                <i class="bi bi-clock"></i>{{formatDate this.updatedAt}}
+                {{#if (eq this.status 'published')}}&nbsp;·&nbsp;<i class="bi bi-eye"></i>{{this.views}} lượt xem{{/if}}
+              </div>
+              {{#if (eq this.status 'rejected')}}
+              <div class="pf-reject"><strong><i class="bi bi-chat-left-text me-1"></i>Ghi chú biên tập</strong>{{#if this.rejectionNote}}{{this.rejectionNote}}{{else}}Không có ghi chú.{{/if}}</div>
+              {{/if}}
+            </div>
+          </div>
+          {{else}}
+          <div class="wk-empty">
+            <div class="wk-empty-icon"><i class="bi bi-pen"></i></div>
+            <h5 style="font-size:1.1rem">Bạn chưa có bài viết nào</h5>
+            <p class="mb-3">Bắt đầu với bài đầu tiên của bạn.</p>
+            <a href="/writer" class="wk-btn"><i class="bi bi-plus-lg"></i> Viết bài</a>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+
+        {{#if (or (eq profile.role 'editor') (eq profile.role 'administrator'))}}
+        {{#if (eq profile.role 'editor')}}
+        <div class="wk-panel">
+          <div class="wk-panel-head"><div><h2 class="wk-panel-title">Chuyên mục phụ trách</h2><p class="wk-panel-sub">Do Administrator phân công.</p></div></div>
+          <div class="wk-cats">
+            {{#each profile.avaiCategory}}<span class="wk-cat-chip"><i class="bi bi-bookmark-fill"></i>{{this.name}}</span>
+            {{else}}<span class="wk-note">Chưa được phân công chuyên mục nào.</span>{{/each}}
+          </div>
+        </div>
+        {{/if}}
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div><h2 class="wk-panel-title">Hoạt động duyệt gần đây</h2><p class="wk-panel-sub">6 bài gần nhất bạn đã xử lý.</p></div>
+            <a href="{{#if (eq profile.role 'editor')}}/editor#history{{else}}/administrator#history{{/if}}" class="wk-btn wk-btn--ghost wk-btn--sm">Xem tất cả</a>
+          </div>
+          {{> reviewHistory items=recentReviews}}
+        </div>
+        {{/if}}
+
+        {{#unless isStaff}}
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div><h2 class="wk-panel-title">Bài đã lưu <span class="wk-count" style="vertical-align:middle">{{savedCount}}</span></h2><p class="wk-panel-sub">Những bài bạn đánh dấu để đọc lại.</p></div>
+            <a href="/user/saved" class="wk-btn wk-btn--ghost wk-btn--sm">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+          </div>
+          {{#each recentSaved}}
+          <a href="/details?id={{this.article._id}}" class="pf-art" style="color:inherit">
+            <img class="wk-thumb" src="{{this.article.image_url.[0]}}" alt=""
+                 onerror="this.onerror=null;this.src='https://placehold.co/192x136/eeeeee/999999?text=No+Image';">
+            <div class="pf-art-body">
+              {{#if this.article.category.name}}<div class="pf-art-top"><span class="wk-pill wk-pill--cat">{{this.article.category.name}}</span></div>{{/if}}
+              <div class="wk-article-title">{{this.article.title}}</div>
+              <div class="wk-meta mt-1"><i class="bi bi-bookmark-check"></i>Lưu {{formatDate this.savedAt}}</div>
+            </div>
+          </a>
+          {{else}}
+          <div class="wk-empty" style="padding:28px 12px">
+            <div class="wk-empty-icon"><i class="bi bi-bookmark"></i></div>
+            <p class="mb-0">Bạn chưa lưu bài nào. Bấm <strong>Lưu bài</strong> trên trang bài viết để bắt đầu.</p>
+          </div>
+          {{/each}}
+        </div>
+
+        <div class="wk-panel">
+          <div class="wk-panel-head"><div><h2 class="wk-panel-title">Tài khoản độc giả</h2><p class="wk-panel-sub">Cảm ơn bạn đã đồng hành cùng GR6 News.</p></div></div>
+          <div class="pf-sub-card">
+            <i class="bi bi-star-fill"></i>
+            <div>
+              <div class="fw-semibold text-dark text-capitalize">Gói {{profile.role}}</div>
+              <div class="wk-meta">{{#if profile.subscription_expiration}}Hiệu lực đến {{formatDate profile.subscription_expiration}}{{else}}Không giới hạn thời gian{{/if}}</div>
+            </div>
+          </div>
+        </div>
+        {{/unless}}
+      </div>
+
+      <!-- ===== CỘT PHẢI: CÀI ĐẶT TÀI KHOẢN ===== -->
+      <div class="col-lg-4">
+        <div class="wk-panel" id="info">
+          <div class="wk-panel-head"><h2 class="pf-section-title"><i class="bi bi-person-gear me-2"></i>Thông tin cá nhân</h2></div>
+          <form action="/user/profile" method="POST">
+            <div class="pf-field">
+              <label>Tên đăng nhập</label>
+              <input type="text" class="form-control" value="{{profile.username}}" readonly>
+              <div class="pf-hint">Không thể thay đổi tên đăng nhập.</div>
+            </div>
+            <div class="pf-field">
+              <label for="pfName">Họ và tên</label>
+              <input type="text" class="form-control" id="pfName" name="full_name" value="{{profile.full_name}}" required>
+            </div>
+            <div class="pf-field">
+              <label for="pfEmail">Email</label>
+              <input type="email" class="form-control" id="pfEmail" name="email" value="{{profile.email}}" required>
+            </div>
+            <button type="submit" class="wk-btn w-100"><i class="bi bi-check2"></i> Lưu thay đổi</button>
+          </form>
+        </div>
+
+        <div class="wk-panel" id="security">
+          <div class="wk-panel-head"><h2 class="pf-section-title"><i class="bi bi-shield-lock me-2"></i>Đổi mật khẩu</h2></div>
+          <form action="/user/password" method="POST" id="pfPassForm">
+            <div class="pf-field">
+              <label for="pfCur">Mật khẩu hiện tại</label>
+              <div class="pf-pass"><input type="password" class="form-control" id="pfCur" name="current_password" required autocomplete="current-password"><button type="button" class="pf-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button></div>
+            </div>
+            <div class="pf-field">
+              <label for="pfNew">Mật khẩu mới</label>
+              <div class="pf-pass"><input type="password" class="form-control" id="pfNew" name="new_password" required minlength="6" autocomplete="new-password"><button type="button" class="pf-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button></div>
+              <div class="pf-hint">Tối thiểu 6 ký tự.</div>
+            </div>
+            <div class="pf-field">
+              <label for="pfConfirm">Nhập lại mật khẩu mới</label>
+              <div class="pf-pass"><input type="password" class="form-control" id="pfConfirm" name="confirm_password" required autocomplete="new-password"><button type="button" class="pf-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button></div>
+            </div>
+            <button type="submit" class="wk-btn wk-btn--ghost w-100"><i class="bi bi-key"></i> Cập nhật mật khẩu</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  // Hiện / ẩn mật khẩu
+  document.querySelectorAll(".pf-eye").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const input = btn.previousElementSibling;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.innerHTML = show ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+    });
+  });
+
+  // Kiểm tra mật khẩu xác nhận ngay trên trình duyệt
+  const form = document.getElementById("pfPassForm");
+  const nw = document.getElementById("pfNew"), cf = document.getElementById("pfConfirm");
+  function check() { cf.setCustomValidity(cf.value && cf.value !== nw.value ? "Mật khẩu xác nhận không khớp" : ""); }
+  nw.addEventListener("input", check); cf.addEventListener("input", check);
+
+  // Lọc bài viết theo trạng thái (phóng viên)
+  document.querySelectorAll(".pf-filter button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".pf-filter button").forEach(x => x.classList.toggle("active", x === b));
+      const f = b.dataset.filter;
+      document.querySelectorAll(".pf-art").forEach(function (row) {
+        row.style.display = (f === "all" || row.dataset.status === f) ? "" : "none";
+      });
+    });
+  });
+
+  // Xoá ?msg khỏi URL sau khi hiển thị thông báo
+  if (location.search.includes("msg=")) history.replaceState(null, "", location.pathname + location.hash);
+})();
+</script>
+  

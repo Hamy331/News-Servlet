@@ -1,0 +1,102 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="/css/workspace.css">
+
+<div class="wk-page">
+  <div class="container">
+
+    <!-- TIÊU ĐỀ -->
+    <div class="wk-head">
+      <div>
+        <div class="wk-kicker wk-kicker--editor"><i class="bi bi-journal-check"></i> Editor Desk</div>
+        <h1 class="wk-title">Bàn biên tập</h1>
+        <p class="wk-sub">Duyệt hoặc từ chối bài viết của phóng viên trong các chuyên mục bạn được Admin phân công.</p>
+      </div>
+    </div>
+
+    {{#if flash}}
+    <div class="wk-flash wk-flash--{{flash.type}}">
+      <i class="bi {{#if (eq flash.type 'success')}}bi-check-circle-fill{{else}}bi-info-circle-fill{{/if}}"></i>
+      <span>{{flash.text}}</span>
+      <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Đóng"></button>
+    </div>
+    {{/if}}
+
+    <!-- THỐNG KÊ -->
+    <div class="wk-stats">
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--amber"><i class="bi bi-hourglass-split"></i></div>
+        <div><div class="wk-stat-label">Chờ duyệt</div><div class="wk-stat-value">{{stats.pending}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--blue"><i class="bi bi-grid"></i></div>
+        <div><div class="wk-stat-label">Chuyên mục phụ trách</div><div class="wk-stat-value">{{stats.categories}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--green"><i class="bi bi-check2-circle"></i></div>
+        <div><div class="wk-stat-label">Bạn đã duyệt</div><div class="wk-stat-value">{{stats.approved}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--red"><i class="bi bi-x-circle"></i></div>
+        <div><div class="wk-stat-label">Bạn đã từ chối</div><div class="wk-stat-value">{{stats.rejected}}</div></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="wk-tabs" role="tablist">
+      <button class="wk-tab active" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">
+        <i class="bi bi-inbox"></i> Hàng chờ duyệt
+        <span class="wk-count {{#if stats.pending}}wk-count--alert{{/if}}">{{stats.pending}}</span>
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+        <i class="bi bi-clock-history"></i> Lịch sử của tôi
+        <span class="wk-count">{{history.length}}</span>
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <!-- HÀNG CHỜ -->
+      <div class="tab-pane fade show active" id="review" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Bài chờ duyệt</h2>
+              <p class="wk-panel-sub">Bài gửi sớm nhất hiển thị trước. Bấm <strong>Xem</strong> để đọc toàn bộ trước khi quyết định.</p>
+            </div>
+            {{#if myCategories.length}}
+            <div class="wk-cats">
+              {{#each myCategories}}<span class="wk-cat-chip"><i class="bi bi-bookmark-fill"></i>{{this.name}}</span>{{/each}}
+            </div>
+            {{/if}}
+          </div>
+
+          {{#if myCategories.length}}
+            {{> reviewQueue items=pending emptyText="Tất cả bài trong chuyên mục của bạn đã được xử lý."}}
+          {{else}}
+          <div class="wk-empty">
+            <div class="wk-empty-icon"><i class="bi bi-person-lock"></i></div>
+            <h5>Bạn chưa được phân công chuyên mục</h5>
+            <p class="mb-0">Liên hệ Administrator để được gán chuyên mục phụ trách. Sau đó bài chờ duyệt sẽ xuất hiện tại đây.</p>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- LỊCH SỬ -->
+      <div class="tab-pane fade" id="history" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Lịch sử xử lý</h2>
+              <p class="wk-panel-sub">20 bài gần nhất bạn đã duyệt hoặc từ chối.</p>
+            </div>
+          </div>
+          {{> reviewHistory items=history}}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{{> reviewModals}}
+{{> workspaceScripts}}

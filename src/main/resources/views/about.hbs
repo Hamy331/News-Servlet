@@ -1,0 +1,259 @@
+<link rel="stylesheet" href="/css/magazine.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+  .ab-hero { padding: 24px 0 8px; }
+  .ab-hero-title { font-family: 'Lora', serif; font-size: 3.4rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; color: #111; margin: 6px 0 20px; }
+  .ab-hero-title em { font-style: italic; color: #d93025; }
+  .ab-hero-lead { font-size: 1.18rem; line-height: 1.7; color: #555; max-width: 580px; margin: 0; }
+
+  .ab-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ab-stat { background: #fff; border: 1px solid #eaeaea; border-radius: 14px; padding: 22px; }
+  .ab-stat b { display: block; font-family: 'Lora', serif; font-size: 2.4rem; font-weight: 700; color: #111; line-height: 1; }
+  .ab-stat span { display: block; margin-top: 8px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #888; }
+  .ab-stat:first-child { background: #111; border-color: #111; }
+  .ab-stat:first-child b { color: #fff; }
+  .ab-stat:first-child span { color: rgba(255,255,255,0.6); }
+
+  .ab-value { background: #fff; border: 1px solid #eaeaea; border-radius: 14px; padding: 28px; height: 100%; transition: transform 0.3s, box-shadow 0.3s; }
+  .ab-value:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,0.06); }
+  .ab-value-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; background: #fdecea; color: #d93025; margin-bottom: 18px; }
+  .ab-value h3 { font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 700; color: #111; margin: 0 0 8px; }
+  .ab-value p { margin: 0; font-size: 0.95rem; line-height: 1.65; color: #555; }
+
+  /* Quy trình xuất bản */
+  .ab-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; counter-reset: step; }
+  .ab-step { position: relative; padding: 0 22px 0 0; counter-increment: step; }
+  .ab-step::before {
+    content: counter(step, decimal-leading-zero);
+    display: flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #fff; border: 2px solid #111;
+    font-family: 'Lora', serif; font-weight: 700; font-size: 1.1rem; color: #111;
+    position: relative; z-index: 1; margin-bottom: 18px;
+  }
+  .ab-step::after { content: ""; position: absolute; top: 26px; left: 52px; right: 0; height: 2px; background: repeating-linear-gradient(90deg, #ccc 0 6px, transparent 6px 12px); }
+  .ab-step:last-child::after { display: none; }
+  .ab-step:last-child::before { background: #d93025; border-color: #d93025; color: #fff; }
+  .ab-step h4 { font-size: 1.02rem; font-weight: 700; color: #111; margin: 0 0 6px; }
+  .ab-step p { font-size: 0.9rem; line-height: 1.6; color: #666; margin: 0; }
+  .ab-role { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; margin-bottom: 8px; }
+  .ab-role--writer { background: #e8f5ee; color: #198754; }
+  .ab-role--editor { background: #e8f0fe; color: #0d6efd; }
+  .ab-role--reader { background: #fdecea; color: #d93025; }
+
+  /* Điều khoản */
+  .ab-toc { list-style: none; padding: 0; margin: 0; border-left: 2px solid #eaeaea; }
+  .ab-toc a { display: block; padding: 9px 0 9px 18px; margin-left: -2px; border-left: 2px solid transparent; font-size: 0.92rem; font-weight: 600; color: #888; transition: all 0.2s; }
+  .ab-toc a:hover { color: #111; }
+  .ab-toc a.is-active { color: #111; border-left-color: #d93025; }
+  .ab-terms h3 { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 700; color: #111; margin: 0 0 14px; scroll-margin-top: 90px; }
+  .ab-terms section + section { margin-top: 40px; padding-top: 40px; border-top: 1px solid #eee; }
+  .ab-terms p { font-family: 'Lora', serif; font-size: 1.06rem; line-height: 1.85; color: #333; margin: 0 0 14px; }
+  .ab-terms ul { padding-left: 0; list-style: none; margin: 0 0 16px; }
+  .ab-terms li { position: relative; padding-left: 28px; margin-bottom: 10px; font-size: 1rem; line-height: 1.65; color: #333; }
+  .ab-terms li::before { content: ""; position: absolute; left: 4px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: #d93025; }
+  .ab-terms a { color: #d93025; font-weight: 600; }
+  .ab-updated { font-size: 0.85rem; color: #888; margin-top: 6px; }
+
+  /* Liên hệ */
+  .ab-cta { position: relative; overflow: hidden; border-radius: 20px; padding: 56px 48px; background: #111 url("/images/auth-network.jpg") center / cover; color: #fff; }
+  .ab-cta::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0.85), rgba(0,0,0,0.35)); }
+  .ab-cta > * { position: relative; }
+  .ab-cta h2 { font-family: 'Lora', serif; font-size: 2.2rem; font-weight: 700; margin: 0 0 10px; color: #fff; }
+  .ab-cta p { color: rgba(255,255,255,0.78); font-size: 1.05rem; margin: 0 0 26px; max-width: 520px; }
+  .ab-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; }
+  .ab-cta .ab-btn--light { background: #fff; color: #111; }
+  .ab-cta .ab-btn--light:hover { background: #d93025; color: #fff; }
+  .ab-btn--ghost { border: 1px solid rgba(255,255,255,0.45); color: #fff; }
+  .ab-btn--ghost:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  @media (max-width: 991.98px) {
+    .ab-hero-title { font-size: 2.5rem; }
+    .ab-flow { grid-template-columns: 1fr 1fr; row-gap: 32px; }
+    .ab-step:nth-child(2)::after { display: none; }
+  }
+  @media (max-width: 575.98px) {
+    .ab-hero-title { font-size: 2rem; }
+    .ab-flow { grid-template-columns: 1fr; }
+    .ab-step::after { display: none; }
+    .ab-cta { padding: 36px 24px; }
+    .ab-cta h2 { font-size: 1.6rem; }
+  }
+</style>
+
+<div class="mz-page py-5">
+  <div class="container">
+
+    <!-- ===== HERO ===== -->
+    <section class="row g-4 g-lg-5 align-items-center ab-hero">
+      <div class="col-lg-7" data-aos="fade-up" data-aos-duration="800">
+        <div class="mz-breadcrumb"><a href="/">Home</a> / <span class="mz-current">Về chúng tôi</span></div>
+        <h1 class="ab-hero-title">Tin tức chính xác,<br>kể bằng sự <em>tử tế</em>.</h1>
+        <p class="ab-hero-lead">GR6 News là toà soạn trực tuyến mang đến tin tức, phân tích và góc nhìn về thời sự, kinh tế, công nghệ, văn hoá và đời sống — mỗi bài viết đều qua tay biên tập viên trước khi đến với bạn.</p>
+      </div>
+      <div class="col-lg-5" data-aos="fade-left" data-aos-duration="800">
+        <div class="ab-stats">
+          <div class="ab-stat"><b>{{#if stats}}{{stats.articles}}{{else}}—{{/if}}</b><span>Bài đã xuất bản</span></div>
+          <div class="ab-stat"><b>{{#if stats}}{{stats.categories}}{{else}}—{{/if}}</b><span>Chuyên mục</span></div>
+          <div class="ab-stat"><b>{{#if stats}}{{stats.writers}}{{else}}—{{/if}}</b><span>Phóng viên</span></div>
+          <div class="ab-stat"><b>{{#if stats}}{{stats.editors}}{{else}}—{{/if}}</b><span>Biên tập viên</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== GIÁ TRỊ ===== -->
+    <section class="mz-section" data-aos="fade-up" data-aos-duration="900">
+      <div class="mz-section-head"><h2 class="mz-section-title">Điều chúng tôi theo đuổi</h2></div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="ab-value">
+            <div class="ab-value-icon"><i class="bi bi-patch-check"></i></div>
+            <h3>Chính xác</h3>
+            <p>Mọi thông tin được kiểm chứng nguồn trước khi đăng. Bài chưa đạt yêu cầu sẽ được trả lại kèm ghi chú cụ thể để phóng viên chỉnh sửa.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="ab-value">
+            <div class="ab-value-icon"><i class="bi bi-shield-check"></i></div>
+            <h3>Độc lập</h3>
+            <p>Nội dung quảng cáo luôn được gắn nhãn <strong>Sponsored</strong> và tách biệt rõ ràng khỏi tin tức biên tập.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="ab-value">
+            <div class="ab-value-icon"><i class="bi bi-people"></i></div>
+            <h3>Gần gũi</h3>
+            <p>Độc giả có thể bình luận, thả tim và theo dõi các chuyên mục yêu thích. Chúng tôi lắng nghe mọi góp ý.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== QUY TRÌNH ===== -->
+    <section class="mz-section" data-aos="fade-up" data-aos-duration="900">
+      <div class="mz-section-head"><h2 class="mz-section-title">Một bài báo ra đời như thế nào</h2></div>
+      <div class="ab-flow">
+        <div class="ab-step">
+          <span class="ab-role ab-role--writer">Phóng viên</span>
+          <h4>Viết bài</h4>
+          <p>Soạn tiêu đề, sapo, nội dung, ảnh và gắn chuyên mục, thẻ trong Writer Workspace.</p>
+        </div>
+        <div class="ab-step">
+          <span class="ab-role ab-role--writer">Phóng viên</span>
+          <h4>Gửi lên toà soạn</h4>
+          <p>Bài chuyển sang trạng thái <em>Chờ duyệt</em> và vào hàng chờ của biên tập viên phụ trách chuyên mục.</p>
+        </div>
+        <div class="ab-step">
+          <span class="ab-role ab-role--editor">Biên tập viên</span>
+          <h4>Kiểm duyệt</h4>
+          <p>Đọc, kiểm chứng và quyết định: duyệt và phân loại (Hot, Must Know…), hoặc trả lại kèm ghi chú.</p>
+        </div>
+        <div class="ab-step">
+          <span class="ab-role ab-role--reader">Độc giả</span>
+          <h4>Xuất bản</h4>
+          <p>Bài xuất hiện trên trang chủ, chuyên mục và kết quả tìm kiếm — sẵn sàng để bạn đọc.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ĐIỀU KHOẢN ===== -->
+    <section class="mz-section" id="terms" data-aos="fade-up" data-aos-duration="900">
+      <div class="mz-section-head"><h2 class="mz-section-title">Điều khoản sử dụng</h2></div>
+      <div class="row g-4 g-lg-5">
+        <aside class="col-lg-3 d-none d-lg-block">
+          <div class="mz-sticky">
+            <ul class="ab-toc">
+              <li><a href="#t1">1. Giới thiệu</a></li>
+              <li><a href="#t2">2. Quyền &amp; trách nhiệm của bạn</a></li>
+              <li><a href="#t3">3. Quyền &amp; trách nhiệm của chúng tôi</a></li>
+              <li><a href="#t4">4. Thay đổi điều khoản</a></li>
+              <li><a href="#t5">5. Liên hệ</a></li>
+            </ul>
+          </div>
+        </aside>
+
+        <div class="col-lg-9 ab-terms">
+          <section>
+            <h3 id="t1">1. Giới thiệu</h3>
+            <p>GR6 News mang đến tin tức mới nhất, phân tích chuyên sâu và những nội dung gợi mở cho độc giả. Khi truy cập website, bạn đồng ý tuân thủ các Điều khoản sử dụng dưới đây. Mục tiêu của chúng tôi là một nền tảng giàu thông tin, dễ dùng và an toàn, tôn trọng lẫn nhau.</p>
+            <p>Chúng tôi đưa tin về nhiều lĩnh vực: thời sự, chính trị, kinh doanh, công nghệ, văn hoá và hơn thế nữa — với mong muốn xây dựng một cộng đồng hiểu biết và thảo luận có ý nghĩa.</p>
+          </section>
+
+          <section>
+            <h3 id="t2">2. Quyền và trách nhiệm của bạn</h3>
+            <p>Bạn có quyền truy cập, đọc và tương tác với nội dung trên website, chia sẻ ý kiến qua bình luận và mạng xã hội. Đồng thời, bạn cần:</p>
+            <ul>
+              <li>Cung cấp thông tin chính xác khi đăng ký hoặc tương tác trên nền tảng.</li>
+              <li>Không đăng hay chia sẻ nội dung xúc phạm, bôi nhọ hoặc sai lệch.</li>
+              <li>Tuân thủ pháp luật hiện hành khi sử dụng dịch vụ.</li>
+              <li>Tôn trọng quyền sở hữu trí tuệ của GR6 News và những người dùng khác.</li>
+            </ul>
+            <p>Vi phạm các trách nhiệm trên có thể dẫn đến việc hạn chế quyền truy cập hoặc các biện pháp phù hợp khác.</p>
+          </section>
+
+          <section>
+            <h3 id="t3">3. Quyền và trách nhiệm của chúng tôi</h3>
+            <p>Chúng tôi cam kết giữ chuẩn mực báo chí cao nhất, bao gồm:</p>
+            <ul>
+              <li>Cung cấp tin tức chính xác, cân bằng và được kiểm chứng kỹ lưỡng.</li>
+              <li>Bảo vệ dữ liệu và quyền riêng tư của người dùng.</li>
+              <li>Phản hồi nhanh các yêu cầu và giải quyết tranh chấp công bằng.</li>
+            </ul>
+            <p>Chúng tôi có quyền cập nhật, chỉnh sửa hoặc gỡ bỏ nội dung khi cần để đảm bảo chất lượng, và có thể tạm khoá hoặc chấm dứt tài khoản vi phạm điều khoản hoặc gây rủi ro cho cộng đồng.</p>
+          </section>
+
+          <section>
+            <h3 id="t4">4. Thay đổi điều khoản</h3>
+            <p>Điều khoản có thể được cập nhật để phản ánh thay đổi trong chính sách, dịch vụ hoặc quy định pháp luật. Mọi thay đổi sẽ được đăng tại trang này; thay đổi quan trọng sẽ được thông báo qua email hoặc thông báo trên website.</p>
+            <p>Việc bạn tiếp tục sử dụng website sau khi thay đổi có hiệu lực đồng nghĩa với việc chấp nhận điều khoản mới.</p>
+          </section>
+
+          <section>
+            <h3 id="t5">5. Liên hệ</h3>
+            <p>Nếu có câu hỏi hay góp ý về Điều khoản sử dụng hoặc bất kỳ điều gì về GR6 News, hãy viết cho chúng tôi tại <a href="mailto:support@gr6news.vn">support@gr6news.vn</a>. Cảm ơn bạn đã tin chọn GR6 News.</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LIÊN HỆ ===== -->
+    <section class="mz-section" data-aos="fade-up" data-aos-duration="900">
+      <div class="ab-cta">
+        <h2>Có câu chuyện muốn kể?</h2>
+        <p>Gửi tin bài, góp ý hoặc hợp tác quảng cáo — đội ngũ GR6 News luôn sẵn sàng lắng nghe.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="mailto:support@gr6news.vn" class="ab-btn ab-btn--light"><i class="bi bi-envelope"></i> support@gr6news.vn</a>
+          {{#if auth}}
+          <a href="/latest" class="ab-btn ab-btn--ghost">Đọc tin mới nhất <i class="bi bi-arrow-right"></i></a>
+          {{else}}
+          <a href="/auth/register" class="ab-btn ab-btn--ghost">Tạo tài khoản <i class="bi bi-arrow-right"></i></a>
+          {{/if}}
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  AOS.init({ once: true });
+
+  // Tô sáng mục lục theo phần đang đọc
+  (function () {
+    const links = document.querySelectorAll(".ab-toc a");
+    if (!links.length || !("IntersectionObserver" in window)) return;
+    const map = {};
+    links.forEach((a) => (map[a.getAttribute("href").slice(1)] = a));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          links.forEach((a) => a.classList.remove("is-active"));
+          map[e.target.id] && map[e.target.id].classList.add("is-active");
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    Object.keys(map).forEach((id) => { const el = document.getElementById(id); el && io.observe(el); });
+  })();
+</script>

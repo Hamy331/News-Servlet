@@ -1,0 +1,46 @@
+{{!-- Script chung cho trang workspace: DataTables + nhớ tab theo #hash --}}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+(function () {
+  // 1. DataTables cho mọi bảng .wk-datatable
+  $(".wk-datatable").each(function () {
+    $(this).DataTable({
+      pageLength: 10,
+      order: [],
+      autoWidth: false,
+      columnDefs: [{ targets: -1, orderable: false }],
+      language: {
+        search: "",
+        searchPlaceholder: "Tìm nhanh...",
+        lengthMenu: "Hiển thị _MENU_",
+        info: "_START_–_END_ / _TOTAL_ mục",
+        infoEmpty: "Không có mục nào",
+        infoFiltered: "(lọc từ _MAX_)",
+        zeroRecords: "Không tìm thấy kết quả phù hợp.",
+        emptyTable: "Không có dữ liệu.",
+        paginate: { previous: "‹", next: "›" }
+      }
+    });
+  });
+
+  // 2. Mở đúng tab theo #hash (vd. sau khi duyệt bài quay về #review) và cập nhật hash khi đổi tab
+  const hash = location.hash.replace("#", "");
+  if (hash) {
+    const btn = document.querySelector('.wk-tabs [data-bs-target="#' + hash + '"]');
+    if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+  }
+  document.querySelectorAll('.wk-tabs [data-bs-toggle="tab"]').forEach(function (btn) {
+    btn.addEventListener("shown.bs.tab", function () {
+      history.replaceState(null, "", location.pathname + btn.dataset.bsTarget);
+      $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    });
+  });
+
+  // 3. Xoá ?msg khỏi URL để F5 không hiện lại thông báo
+  if (location.search.includes("msg=")) {
+    history.replaceState(null, "", location.pathname + location.hash);
+  }
+})();
+</script>

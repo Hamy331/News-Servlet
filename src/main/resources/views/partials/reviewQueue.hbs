@@ -1,0 +1,60 @@
+{{!-- Hàng chờ duyệt — dùng chung cho Editor Desk & Admin Dashboard
+      Tham số: items (mảng bài pending), emptyText (chuỗi) --}}
+{{#if items.length}}
+<div class="table-responsive">
+  <table class="table wk-table wk-datatable align-middle">
+    <thead>
+      <tr>
+        <th>Bài viết</th>
+        <th>Chuyên mục</th>
+        <th>Tác giả</th>
+        <th>Gửi lúc</th>
+        <th class="text-end">Thao tác</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr data-id="{{this._id}}" data-title="{{this.title}}" data-cat="{{this.category.name}}"
+          data-author="{{this.author.username}}" data-date="{{formatDate this.createdAt}}"
+          data-img="{{this.image_url.[0]}}" data-summary="{{this.summary}}"
+          data-type="{{this.articleType}}" data-revision="{{#if this.isRevision}}1{{/if}}">
+        <td>
+          <div class="wk-article">
+            <img class="wk-thumb" src="{{this.image_url.[0]}}" alt=""
+                 onerror="this.onerror=null;this.src='https://placehold.co/144x104/eeeeee/999999?text=No+Image';">
+            <div>
+              {{#if this.isRevision}}
+              <div class="mb-1"><span class="wk-pill wk-pill--revision_pending"><i class="bi bi-pencil-square"></i> Bản sửa · bài đang đăng</span></div>
+              {{/if}}
+              <div class="wk-article-title">{{this.title}}</div>
+              {{#if this.isRevision}}
+              <div class="ht-fields" style="margin-top:5px">{{#each this.changedLabels}}<span>{{this}}</span>{{/each}}</div>
+              {{/if}}
+              {{#if this.summary}}<div class="wk-article-sum">{{this.summary}}</div>{{/if}}
+            </div>
+          </div>
+          <template class="wk-content">{{{this.content}}}</template>
+        </td>
+        <td><span class="wk-pill wk-pill--cat">{{this.category.name}}</span></td>
+        <td class="wk-meta"><i class="bi bi-person"></i>{{#if this.author.username}}{{this.author.username}}{{else}}—{{/if}}</td>
+        <td class="wk-meta"><i class="bi bi-clock"></i>{{formatDate this.createdAt}}</td>
+        <td>
+          <div class="wk-actions">
+            <button type="button" class="wk-btn wk-btn--ghost wk-btn--sm" data-wk-action="preview" title="Xem trước"><i class="bi bi-eye"></i><span class="d-none d-xl-inline">Xem</span></button>
+            <a href="/article/history/{{this._id}}" class="wk-btn wk-btn--ghost wk-btn--sm" title="Lịch sử chỉnh sửa"><i class="bi bi-clock-history"></i></a>
+            <button type="button" class="wk-btn wk-btn--success wk-btn--sm" data-wk-action="approve"><i class="bi bi-check2"></i> Duyệt</button>
+            <button type="button" class="wk-btn wk-btn--danger wk-btn--sm" data-wk-action="reject"><i class="bi bi-x-lg"></i> Từ chối</button>
+          </div>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+{{else}}
+<div class="wk-empty">
+  <div class="wk-empty-icon"><i class="bi bi-inbox"></i></div>
+  <h5>Không còn bài nào chờ duyệt</h5>
+  <p class="mb-0">{{#if emptyText}}{{emptyText}}{{else}}Bài mới từ phóng viên sẽ xuất hiện ở đây.{{/if}}</p>
+</div>
+{{/if}}

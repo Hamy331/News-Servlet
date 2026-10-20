@@ -1,0 +1,33 @@
+<main class="au-card">
+    <section class="au-side">
+        {{> authBrand}}
+
+        <div class="au-main">
+            <h1 class="au-title">Xin chào!</h1>
+            <p class="au-lead">Đăng nhập để bình luận, lưu bài và truy cập Workspace của bạn.</p>
+
+            {{#if message}}<div class="au-alert au-alert--success"><i class="bi bi-check-circle-fill"></i><span>{{message}}</span></div>{{/if}}
+            {{#if has_errors}}<div class="au-alert au-alert--error"><i class="bi bi-exclamation-circle-fill"></i><span>{{has_errors}}</span></div>{{/if}}
+
+            <form class="au-form" action="/auth/login" method="post">
+                <div class="au-field">
+                    <label for="username">Tên đăng nhập</label>
+                    <input class="au-input" type="text" id="username" name="username" placeholder="Tên đăng nhập" value="{{formData.username}}" required autocomplete="username" autofocus>
+                </div>
+                <div class="au-field au-field--pass">
+                    <label for="password">Mật khẩu</label>
+                    <input class="au-input" type="password" id="password" name="password" placeholder="Mật khẩu" required autocomplete="current-password">
+                    <button type="button" class="au-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button>
+                </div>
+                <div class="au-link-row"><a class="au-link" href="/auth/forgot">Quên mật khẩu?</a></div>
+                <button class="au-btn" type="submit">Đăng nhập <i class="bi bi-arrow-right"></i></button>
+            </form>
+
+            <p class="au-switch">Chưa có tài khoản? <a href="/auth/register">Đăng ký ngay</a></p>
+        </div>
+
+        {{> authFoot}}
+    </section>
+
+    {{> authVisual heading="Tin tức đáng tin cậy, cập nhật từng phút" text="Theo dõi các chuyên mục bạn yêu thích, bình luận và nhận những bài viết nổi bật được biên tập kỹ lưỡng mỗi ngày."}}
+</main>

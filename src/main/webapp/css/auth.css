@@ -1,0 +1,253 @@
+/* ==========================================================================
+   AUTH — Đăng nhập / Đăng ký / Quên mật khẩu / Đặt lại mật khẩu
+   Bố cục thẻ chia đôi: form bên trái, ảnh + thẻ kính mờ bên phải.
+   ========================================================================== */
+
+:root {
+  --au-ink: #111;
+  --au-text: #555;
+  --au-muted: #8a8a8a;
+  --au-field: #f3f4f3;
+  --au-red: #d93025;
+  --au-blue: #0d6efd;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.au-body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--au-text);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(217, 48, 37, 0.06), transparent 40%),
+    radial-gradient(circle at 88% 82%, rgba(0, 170, 190, 0.08), transparent 42%),
+    #eef0ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+}
+
+/* ---------- Thẻ chính ---------- */
+.au-card {
+  width: 100%;
+  max-width: 1180px;
+  min-height: min(760px, calc(100vh - 56px));
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(17, 17, 17, 0.08), 0 2px 6px rgba(17, 17, 17, 0.04);
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  overflow: hidden;
+  animation: auIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes auIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Nửa trái: form ---------- */
+.au-side {
+  display: flex;
+  flex-direction: column;
+  padding: 34px 56px 26px;
+}
+.au-top { display: flex; align-items: center; justify-content: space-between; }
+.au-logo {
+  font-family: 'Lora', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--au-ink);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+.au-logo b { color: var(--au-red); }
+.au-back {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--au-muted);
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: color 0.2s;
+}
+.au-back:hover { color: var(--au-ink); }
+
+.au-main {
+  flex: 1;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0 28px;
+}
+.au-title {
+  font-family: 'Lora', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--au-ink);
+  text-align: center;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.au-lead {
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--au-text);
+  margin: 0 auto 34px;
+  max-width: 340px;
+}
+
+/* Ô nhập */
+.au-form { display: flex; flex-direction: column; }
+.au-field { position: relative; margin-bottom: 14px; }
+.au-field label {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); /* ẩn nhãn nhưng vẫn đọc được bằng trình đọc màn hình */
+}
+.au-input {
+  width: 100%;
+  height: 52px;
+  padding: 0 18px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  background: var(--au-field);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--au-ink);
+  outline: none;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.au-input::placeholder { color: #9a9a9a; }
+.au-input:hover { background: #eeefee; }
+.au-input:focus { background: #fff; border-color: var(--au-ink); box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06); }
+.au-field--pass .au-input { padding-right: 50px; }
+.au-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px;
+  border: 0; background: none; border-radius: 8px;
+  color: var(--au-muted); cursor: pointer; font-size: 1.05rem;
+}
+.au-eye:hover { color: var(--au-ink); background: rgba(0, 0, 0, 0.04); }
+
+.au-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.au-row .au-field { margin-bottom: 14px; }
+
+.au-link-row { display: flex; justify-content: flex-start; margin: 2px 0 26px; }
+.au-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--au-red);
+  text-decoration: none;
+}
+.au-link:hover { text-decoration: underline; }
+
+.au-btn {
+  height: 54px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--au-ink);
+  color: #fff;
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.au-btn:hover { background: #2a2a2a; box-shadow: 0 10px 24px rgba(17, 17, 17, 0.18); }
+.au-btn:active { transform: translateY(1px); }
+.au-btn:disabled { opacity: 0.75; cursor: wait; }
+.au-spin {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #fff;
+  animation: auSpin 0.7s linear infinite;
+}
+@keyframes auSpin { to { transform: rotate(360deg); } }
+
+.au-switch { text-align: center; font-size: 0.9rem; margin-top: 22px; color: var(--au-text); }
+.au-switch a { color: var(--au-ink); font-weight: 700; text-decoration: none; border-bottom: 1.5px solid var(--au-ink); }
+.au-switch a:hover { color: var(--au-red); border-color: var(--au-red); }
+
+.au-terms { font-size: 0.78rem; color: var(--au-muted); text-align: center; margin: 14px 0 0; line-height: 1.5; }
+.au-terms a { color: var(--au-text); }
+
+/* Thông báo */
+.au-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.au-alert i { font-size: 1rem; margin-top: 1px; }
+.au-alert--error { background: #fdf0ef; color: #a42a20; }
+.au-alert--success { background: #eef8f2; color: #146c43; }
+
+/* Chân form */
+.au-foot { text-align: center; }
+.au-help { font-size: 0.85rem; font-weight: 600; color: var(--au-ink); margin: 0 0 4px; }
+.au-mail { font-size: 0.85rem; color: var(--au-red); text-decoration: none; font-weight: 500; }
+.au-mail:hover { text-decoration: underline; }
+.au-copy { font-size: 0.75rem; color: #b0b0b0; margin: 26px 0 0; }
+
+/* ---------- Nửa phải: ảnh + thẻ kính ---------- */
+.au-visual {
+  position: relative;
+  background: #061316 url("/images/auth-network.jpg") center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  overflow: hidden;
+}
+.au-visual::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 70% 40%, transparent 30%, rgba(0, 0, 0, 0.35) 100%);
+}
+.au-glass {
+  position: relative;
+  width: min(440px, 100%);
+  padding: 34px 34px 36px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  transform: translateX(8%);
+}
+.au-ring {
+  display: block;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+  border-right-color: transparent;
+  margin-bottom: 22px;
+  animation: auSpin 2.4s linear infinite;
+}
+.au-glass h2 {
+  font-family: 'Lora', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 14px;
+  color: #fff;
+}
+.au-glass p { font-size: 0.92rem; line-height: 1.6; color: rgba(255, 255, 255, 0.82); margin: 0; max-width: 340px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 991.98px) {
+  .au-card { grid-template-columns: 1fr; max-width: 560px; min-height: 0; }
+  .au-visual { display: none; }
+  .au-side { padding: 28px 32px 24px; }
+}
+@media (max-width: 575.98px) {
+  .au-body { padding: 0; align-items: stretch; }
+  .au-card { border-radius: 0; min-height: 100vh; box-shadow: none; }
+  .au-side { padding: 22px 20px 20px; }
+  .au-title { font-size: 2rem; }
+  .au-row { grid-template-columns: 1fr; gap: 0; }
+}

@@ -1,0 +1,160 @@
+<link rel="stylesheet" href="/css/workspace.css">
+
+<div class="wk-page">
+  <div class="container">
+
+    <div class="wk-head">
+      <div>
+        <div class="mz-breadcrumb" style="font-size:.8rem;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:6px">
+          <a href="/writer/articles" style="color:#888">Bài của tôi</a> / <span style="color:#d93025;font-weight:700">Sửa bài</span>
+        </div>
+        <h1 class="wk-title">Sửa bài viết</h1>
+        <p class="wk-sub">{{article.title}}</p>
+      </div>
+      <div class="wk-head-actions">
+        {{#if isPublished}}<a href="/details?id={{article._id}}" target="_blank" class="wk-btn wk-btn--ghost"><i class="bi bi-box-arrow-up-right"></i> Xem bản đang đăng</a>{{/if}}
+        <a href="/article/history/{{article._id}}" class="wk-btn wk-btn--ghost"><i class="bi bi-clock-history"></i> Lịch sử</a>
+      </div>
+    </div>
+
+    {{#if flash}}
+    <div class="wk-flash wk-flash--{{flash.type}}"><i class="bi bi-info-circle-fill"></i><span>{{flash.text}}</span><button type="button" class="btn-close" onclick="this.parentElement.remove()"></button></div>
+    {{/if}}
+    {{#if error}}
+    <div class="wk-flash wk-flash--danger"><i class="bi bi-exclamation-circle-fill"></i><span>{{error}}</span></div>
+    {{/if}}
+
+    <form action="/writer/edit/{{article._id}}" method="post" id="editForm">
+      <div class="row g-4">
+
+        <!-- ===== FORM ===== -->
+        <div class="col-lg-8">
+          <div class="wk-panel">
+            <div class="row">
+              <div class="col-md-8 ed-field">
+                <label for="title">Tiêu đề <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="title" name="title" value="{{form.title}}" required>
+              </div>
+              <div class="col-md-4 ed-field">
+                <label for="category">Chuyên mục <span class="text-danger">*</span></label>
+                <select id="category" name="category" class="form-select" required>
+                  {{#each categories}}<option value="{{this._id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>{{/each}}
+                </select>
+              </div>
+            </div>
+
+            <div class="ed-field">
+              <label for="summary">Sapo (mô tả ngắn) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="summary" name="summary" rows="3" required>{{form.summary}}</textarea>
+            </div>
+
+            <div class="ed-field">
+              <label for="content">Nội dung <span class="text-danger">*</span></label>
+              <textarea id="content" name="content">{{form.content}}</textarea>
+            </div>
+
+            <div class="ed-field">
+              <label for="tags">Thẻ <span class="text-muted fw-normal">(giữ Ctrl/Cmd để chọn nhiều)</span></label>
+              <select id="tags" name="tags[]" class="form-select" multiple size="5">
+                {{#each tags}}<option value="{{this._id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>{{/each}}
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 ed-field mb-md-0">
+                <label for="image_url"><i class="bi bi-image me-1"></i>Link ảnh bìa</label>
+                <input type="url" class="form-control" id="image_url" name="image_url" value="{{form.image_url}}" placeholder="https://...">
+              </div>
+              <div class="col-md-6 ed-field mb-0">
+                <label for="video_url"><i class="bi bi-youtube me-1"></i>Link YouTube</label>
+                <input type="url" class="form-control" id="video_url" name="video_url" value="{{form.video_url}}" placeholder="https://youtube.com/watch?v=...">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SIDEBAR ===== -->
+        <div class="col-lg-4">
+          <div class="ed-sticky">
+            <div class="wk-panel">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="wk-label mb-0">Trạng thái</span>
+                <span class="wk-pill wk-pill--{{state}}">{{stateLabel}}</span>
+              </div>
+
+              {{#if (eq state 'published')}}
+              <div class="ed-state ed-state--published"><i class="bi bi-shield-check"></i><div><strong>Bài đang được đăng</strong><p>Thay đổi sẽ được gửi thành <b>bản sửa</b> để biên tập viên duyệt. Độc giả vẫn đọc bản cũ cho tới khi bản sửa được duyệt. Lượt xem, tim, bình luận giữ nguyên.</p></div></div>
+              {{else if (eq state 'revision_pending')}}
+              <div class="ed-state ed-state--revision_pending"><i class="bi bi-hourglass-split"></i><div><strong>Bản sửa đang chờ duyệt</strong><p>Bạn vẫn có thể chỉnh tiếp — bản sửa sẽ được cập nhật và biên tập viên nhận thông báo.</p></div></div>
+              {{else if (eq state 'revision_rejected')}}
+              <div class="ed-state ed-state--revision_rejected"><i class="bi bi-x-octagon"></i><div><strong>Bản sửa bị từ chối</strong><p>Bài đang đăng vẫn là bản cũ. Sửa theo ghi chú rồi gửi lại.</p></div></div>
+              {{else if (eq state 'pending')}}
+              <div class="ed-state ed-state--pending"><i class="bi bi-hourglass-split"></i><div><strong>Đang chờ duyệt</strong><p>Bài vẫn nằm trong hàng chờ. Biên tập viên sẽ nhận thông báo rằng bạn vừa chỉnh sửa.</p></div></div>
+              {{else if (eq state 'rejected')}}
+              <div class="ed-state ed-state--rejected"><i class="bi bi-x-circle"></i><div><strong>Bài bị từ chối</strong><p>Sửa theo ghi chú rồi bấm <b>Lưu &amp; gửi duyệt lại</b>.</p></div></div>
+              {{else}}
+              <div class="ed-state"><i class="bi bi-file-earmark"></i><div><strong>Bản nháp</strong><p>Chưa gửi lên toà soạn.</p></div></div>
+              {{/if}}
+
+              {{#if note}}
+              <div class="ht-note mb-3" style="margin-top:0"><b class="d-block" style="font-style:normal;font-size:.72rem;letter-spacing:.6px;text-transform:uppercase">Ghi chú biên tập</b>{{note}}</div>
+              {{/if}}
+
+              <div class="ed-actions">
+                {{#if isPublished}}
+                <button type="submit" name="action" value="submit" class="wk-btn wk-btn--success"><i class="bi bi-send-check"></i> {{#if (eq state 'published')}}Gửi bản sửa để duyệt{{else}}Cập nhật &amp; gửi bản sửa{{/if}}</button>
+                {{else if (eq state 'pending')}}
+                <button type="submit" name="action" value="save" class="wk-btn"><i class="bi bi-check2"></i> Lưu thay đổi</button>
+                {{else}}
+                <button type="submit" name="action" value="submit" class="wk-btn wk-btn--success"><i class="bi bi-arrow-repeat"></i> Lưu &amp; gửi duyệt lại</button>
+                <button type="submit" name="action" value="save" class="wk-btn wk-btn--ghost"><i class="bi bi-floppy"></i> Chỉ lưu, chưa gửi</button>
+                {{/if}}
+                <a href="/writer/articles" class="wk-btn wk-btn--ghost">Huỷ</a>
+              </div>
+            </div>
+
+            <div class="wk-panel">
+              <div class="wk-panel-head" style="margin-bottom:14px"><h2 class="wk-panel-title" style="font-size:1rem"><i class="bi bi-clock-history me-2"></i>Lịch sử chỉnh sửa</h2></div>
+              {{> historyTimeline items=history}}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.CKEDITOR) {
+      CKEDITOR.replace("content", { versionCheck: false, removePlugins: "versioncheck", height: 420 });
+    }
+  });
+
+  // Chống bấm 2 lần & cảnh báo khi rời trang mà chưa lưu
+  (function () {
+    const form = document.getElementById("editForm");
+    let dirty = false, submitting = false;
+    form.addEventListener("input", () => (dirty = true));
+    form.addEventListener("change", () => (dirty = true));
+    form.addEventListener("submit", function (e) {
+      submitting = true;
+      if (window.CKEDITOR) for (const k in CKEDITOR.instances) CKEDITOR.instances[k].updateElement();
+      const btn = e.submitter;
+      if (btn) {
+        // giữ giá trị action vì nút bị disable sẽ không được gửi
+        const hidden = document.createElement("input");
+        hidden.type = "hidden"; hidden.name = "action"; hidden.value = btn.value;
+        form.appendChild(hidden);
+        form.querySelectorAll('button[type="submit"]').forEach((b) => (b.disabled = true));
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+      }
+    });
+    window.addEventListener("beforeunload", function (e) {
+      const ckDirty = window.CKEDITOR && Object.values(CKEDITOR.instances).some((i) => i.checkDirty());
+      if ((dirty || ckDirty) && !submitting) { e.preventDefault(); e.returnValue = ""; }
+    });
+  })();
+</script>

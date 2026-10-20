@@ -1,0 +1,499 @@
+<link rel="stylesheet" href="/css/details.css">
+
+<!-- Thư viện AOS cho hiệu ứng cuộn trang -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<!-- Các thư viện script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+<style>
+    /* KHỐI CSS MỚI ĐỂ LÀM ĐẸP SLIDER "CÓ THỂ BẠN SẼ THÍCH" */
+    .rec-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #eaeaea;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .rec-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+    }
+    .rec-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid #f4f4f4;
+    }
+    .rec-card-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .rec-category {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #d93025;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+    .rec-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        line-height: 1.5;
+        color: #111;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        transition: color 0.2s;
+    }
+    .rec-card:hover .rec-title {
+        color: #0d6efd;
+    }
+    
+    /* NÚT LƯU BÀI */
+    .save-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 14px; border-radius: 999px;
+        border: 1px solid #dee2e6; background: #f8f9fa;
+        font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 700;
+        color: #111; text-decoration: none; cursor: pointer;
+        transition: all 0.2s;
+    }
+    .save-btn:hover { border-color: #111; color: #111; }
+    .save-btn.is-saved { background: #111; border-color: #111; color: #fff; }
+    .save-btn.is-saved:hover { background: #d93025; border-color: #d93025; }
+    .save-btn.pop i { animation: savePop 0.35s ease; }
+    @keyframes savePop { 50% { transform: scale(1.35); } }
+    .save-toast {
+        position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px);
+        background: #111; color: #fff; padding: 12px 18px; border-radius: 12px;
+        font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
+        display: flex; align-items: center; gap: 12px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 2000;
+    }
+    .save-toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+    .save-toast a { color: #ffb4ad; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .save-toast a:hover { color: #fff; }
+
+    /* Làm đẹp nút điều hướng của Slider */
+    #recommended-slider .owl-nav {
+        margin-top: 0;
+    }
+    #recommended-slider .owl-nav button.owl-prev, 
+    #recommended-slider .owl-nav button.owl-next {
+        position: absolute;
+        top: 35%; /* Căn giữa theo ảnh bìa */
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        background-color: #fff !important;
+        color: #333 !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px !important;
+        transition: all 0.2s;
+        border: 1px solid #eaeaea !important;
+        z-index: 10;
+    }
+    #recommended-slider .owl-nav button.owl-prev:hover, 
+    #recommended-slider .owl-nav button.owl-next:hover {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+        border-color: #0d6efd !important;
+    }
+    #recommended-slider .owl-nav button.owl-prev { left: -15px; }
+    #recommended-slider .owl-nav button.owl-next { right: -15px; }
+</style>
+
+<div class="editorial-layout py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            
+            <!-- CỘT TRÁI: NỘI DUNG -->
+            <div class="col-lg-8 pe-lg-5 mb-5" data-aos="fade-up" data-aos-duration="1000">
+                
+                <div class="breadcrumb-text">
+                    <a href="/">HOME</a> / 
+                    <a href="/category?name={{article.category.name}}">{{article.category.name}}</a>
+                    {{#if article.articleType}}
+                    / <span class="type-highlight">{{formatType article.articleType}}</span>
+                    {{/if}}
+                </div>
+
+                <h1 class="editorial-title">{{article.title}}</h1>
+                <p class="editorial-summary">{{article.summary}}</p>
+
+                <div class="meta-bar justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="author-name me-3"><i class="bi bi-pen-fill text-muted"></i> By {{article.author.username}}</div>
+                        <div class="meta-date">
+                            {{formatDate article.publishedAt}} 
+                            {{#if (isEdited article.publishedAt article.updatedAt)}}<span class="fst-italic ms-1">(Edited)</span>{{/if}}
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-danger" onclick="likeArticle('{{article._id}}')">
+                            <i class="bi bi-heart-fill"></i> <span id="like-count">{{article.likesCount}}</span>
+                        </button>
+                        <span class="text-muted" style="font-size: 0.9rem;"><i class="bi bi-eye"></i> {{article.views}} Views</span>
+                        {{!-- LƯU BÀI: độc giả đăng nhập → bật/tắt; khách → chuyển tới đăng nhập; nhân sự toà soạn → không hiển thị --}}
+                        {{#if isReader}}
+                        <button type="button" id="save-btn" class="save-btn {{#if isSaved}}is-saved{{/if}}" data-id="{{article._id}}"
+                                aria-pressed="{{#if isSaved}}true{{else}}false{{/if}}" title="{{#if isSaved}}Bỏ lưu bài viết{{else}}Lưu bài viết để đọc sau{{/if}}">
+                            <i class="bi {{#if isSaved}}bi-bookmark-fill{{else}}bi-bookmark{{/if}}"></i>
+                            <span class="save-label">{{#if isSaved}}Đã lưu{{else}}Lưu bài{{/if}}</span>
+                        </button>
+                        {{else}}{{#unless auth}}
+                        <a href="/auth/login?reason=save&next=%2Fdetails%3Fid%3D{{article._id}}" class="save-btn" title="Đăng nhập để lưu bài viết">
+                            <i class="bi bi-bookmark"></i> <span class="save-label">Lưu bài</span>
+                        </a>
+                        {{/unless}}{{/if}}
+                        <button id="download-btn" class="btn btn-sm btn-dark rounded-pill px-3"><i class="bi bi-download"></i> PDF</button>
+                    </div>
+                </div>
+
+                <!-- ẢNH THUMBNAIL -->
+                {{#if article.image_url.[0]}}
+                <div class="mb-5">
+                    <img src="{{article.image_url.[0]}}" onerror="this.onerror=null;this.src='https://placehold.co/800x500/eeeeee/999999?text=Image+Not+Found';" alt="Thumbnail" class="img-fluid rounded w-100" style="max-height: 500px; object-fit: cover;">
+                </div>
+                {{/if}}
+
+                <div class="editorial-content">{{{article.content}}}</div>
+
+                {{#if article.tags.length}}
+                <div class="mt-5 pt-4 border-top">
+                    <span class="fw-bold me-2 text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Tags:</span>
+                    {{#each article.tags}}
+                        <a href="/search?q={{this.name}}" class="badge bg-light text-dark border text-decoration-none px-3 py-2 me-1 mb-1 fw-normal shadow-sm">#{{this.name}}</a>
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                <!-- COMMENT BOX -->
+                <div class="comment-box mt-5" data-aos="fade-up" data-aos-duration="1200">
+                    <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif;">Comments (<span id="comment-total">{{article.commentsCount}}</span>)</h4>
+                    
+                    <form id="commentForm" class="mb-5">
+                        <input type="hidden" id="articleId" value="{{article._id}}">
+                        
+                        <!-- KIỂM TRA ĐĂNG NHẬP -->
+                        <div class="mb-3">
+                            {{#if authUser}}
+                            <div class="d-flex align-items-center mb-2 px-2 text-muted">
+                                <i class="bi bi-person-check-fill me-2 text-success"></i> Bình luận với tư cách: <strong class="ms-1 text-dark">{{authUser.username}}</strong>
+                            </div>
+                            <input type="hidden" id="commentName" value="{{authUser.username}}">
+                            {{else}}
+                            <input type="text" class="form-control bg-light border-0 p-3" id="commentName" placeholder="Your name..." required>
+                            {{/if}}
+                        </div>
+
+                        <div class="mb-3">
+                            <textarea class="form-control bg-light border-0 p-3" id="commentContent" rows="3" placeholder="Share your thoughts..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary fw-bold px-4 py-2 rounded-pill">Submit</button>
+                    </form>
+
+                    <!-- DANH SÁCH BÌNH LUẬN (CHỜ ĐƯỢC XỬ LÝ BỞI JS) -->
+                    <div id="commentList">
+                        {{#each comments}}
+                        <div class="d-flex mb-4 comment-item" style="display: none;">
+                            <div class="flex-shrink-0"><div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555;">{{getFirstLetter this.name}}</div></div>
+                            <div class="flex-grow-1 ms-3 border-bottom pb-3">
+                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">
+                                        {{this.name}}
+                                        {{#if (eq this.name ../article.author.username)}}
+                                        <span class="badge bg-primary ms-2" style="font-size: 10px; border-radius: 12px;">Author</span>
+                                        {{/if}}
+                                    </h6>
+                                    <span class="text-muted" style="font-size: 0.8rem;">{{formatDate this.createdAt}}</span>
+                                </div>
+                                <p class="mb-0 text-dark mt-2" style="font-size: 0.95rem;">{{this.content}}</p>
+                            </div>
+                        </div>
+                        {{else}}
+                        <p class="text-muted fst-italic text-center" id="no-comment-msg">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+                        {{/each}}
+                    </div>
+                    
+                    <!-- NÚT TẢI THÊM BÌNH LUẬN -->
+                    <div class="text-center mt-3">
+                        <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold" style="display: none;">
+                            <!-- Text sẽ được JS điền tự động -->
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KHU VỰC CÓ THỂ BẠN SẼ THÍCH ĐƯỢC THIẾT KẾ LẠI -->
+                {{#if recommendedArticles.length}}
+                <div class="mt-5 pt-5 border-top" data-aos="fade-up" data-aos-duration="1200">
+                    <h3 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 5px;">Có thể bạn sẽ thích</h3>
+                    
+                    <div class="position-relative px-2 mt-4">
+                        <div class="owl-carousel owl-theme" id="recommended-slider">
+                            {{#each recommendedArticles}}
+                            <div class="item py-3"> <!-- Padding y để hiệu ứng shadow khi hover không bị lẹm -->
+                                <div class="rec-card">
+                                    <a href="/details?id={{this._id}}">
+                                        <img src="{{this.image_url.[0]}}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=Image+Not+Found';" alt="Rec">
+                                    </a>
+                                    <div class="rec-card-body">
+                                        <span class="rec-category">{{this.category.name}}</span>
+                                        <a href="/details?id={{this._id}}" class="text-decoration-none">
+                                            <h5 class="rec-title">{{this.title}}</h5>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+                {{/if}}
+
+            </div>
+
+            <!-- CỘT PHẢI: SIDEBAR -->
+            <div class="col-lg-4" data-aos="fade-left" data-aos-duration="1200">
+                
+                {{#if adsArticles.length}}
+                <div class="mb-5">
+                    <h5 class="sidebar-title bg-dark text-white p-2 border-0 text-center rounded-top mb-0">Sponsored</h5>
+                    <div class="border border-top-0 p-3 bg-white rounded-bottom shadow-sm">
+                        {{#each adsArticles}}
+                        <div class="mb-4">
+                            <a href="/details?id={{this._id}}"><img src="{{this.image_url.[0]}}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';" class="w-100 rounded mb-2" style="height: 140px; object-fit: cover;"></a>
+                            <a href="/details?id={{this._id}}" class="text-decoration-none sidebar-news-title">{{this.title}}</a>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/if}}
+
+                {{#if hotArticles.length}}
+                <div class="mb-5 bg-white p-4 border rounded shadow-sm">
+                    <h5 class="sidebar-title border-danger text-danger">Trending Now</h5>
+                    {{#each hotArticles}}
+                    <div class="mb-3 border-bottom pb-3">
+                        <a href="/details?id={{this._id}}" class="text-decoration-none sidebar-news-title mb-2 d-block">{{this.title}}</a>
+                        <span class="badge {{#if (eq this.articleType 'hot')}}bg-danger{{else}}bg-dark{{/if}} me-2 text-uppercase" style="font-size: 9px;">{{formatType this.articleType}}</span>
+                        <span class="sidebar-meta">{{formatDate this.publishedAt}}</span>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                {{#if relatedCategoryArticles.length}}
+                <div class="mb-5">
+                    <h5 class="sidebar-title">Related News</h5>
+                    {{#each relatedCategoryArticles}}
+                    <div class="d-flex mb-4 align-items-start">
+                        <a href="/details?id={{this._id}}" class="sidebar-img-wrapper me-3">
+                            <img src="{{this.image_url.[0]}}" onerror="this.onerror=null;this.src='https://placehold.co/200x200/eeeeee/999999?text=No+Image';" alt="Thumb">
+                        </a>
+                        <div class="flex-grow-1">
+                            <a href="/details?id={{this._id}}" class="text-decoration-none sidebar-news-title">{{this.title}}</a>
+                            <div class="sidebar-meta"><i class="bi bi-eye"></i> {{this.views}} Views</div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+
+                {{#if authorArticles.length}}
+                <div class="mb-5">
+                    <h5 class="sidebar-title border-primary">More by {{article.author.username}}</h5>
+                    {{#each authorArticles}}
+                    <div class="d-flex mb-4 align-items-start">
+                        <a href="/details?id={{this._id}}" class="sidebar-img-wrapper me-3">
+                            <img src="{{this.image_url.[0]}}" onerror="this.onerror=null;this.src='https://placehold.co/200x200/eeeeee/999999?text=No+Image';" alt="Thumb">
+                        </a>
+                        <div class="flex-grow-1">
+                            <a href="/details?id={{this._id}}" class="text-decoration-none sidebar-news-title">{{this.title}}</a>
+                            <div class="sidebar-meta">{{formatDate this.publishedAt}}</div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{/if}}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // KÍCH HOẠT HIỆU ỨNG CUỘN TRANG (AOS)
+    AOS.init({ once: true });
+
+    // LƯU / BỎ LƯU BÀI VIẾT
+    (function () {
+        const btn = document.getElementById("save-btn");
+        if (!btn) return;
+        const toast = document.createElement("div");
+        toast.className = "save-toast";
+        document.body.appendChild(toast);
+        let timer;
+        function showToast(html) {
+            toast.innerHTML = html;
+            toast.classList.add("show");
+            clearTimeout(timer);
+            timer = setTimeout(() => toast.classList.remove("show"), 3200);
+        }
+        function render(saved) {
+            btn.classList.toggle("is-saved", saved);
+            btn.setAttribute("aria-pressed", saved);
+            btn.title = saved ? "Bỏ lưu bài viết" : "Lưu bài viết để đọc sau";
+            btn.querySelector("i").className = "bi " + (saved ? "bi-bookmark-fill" : "bi-bookmark");
+            btn.querySelector(".save-label").textContent = saved ? "Đã lưu" : "Lưu bài";
+        }
+        btn.addEventListener("click", async function () {
+            btn.disabled = true;
+            try {
+                const res = await fetch("/user/saved/" + btn.dataset.id, { method: "POST", headers: { "Accept": "application/json" } });
+                const data = await res.json();
+                if (data.redirect) { window.location.href = data.redirect; return; }
+                if (!data.success) { showToast('<i class="bi bi-exclamation-circle"></i>' + (data.message || "Có lỗi xảy ra")); return; }
+                render(data.saved);
+                btn.classList.remove("pop"); void btn.offsetWidth; btn.classList.add("pop");
+                showToast(data.saved
+                    ? '<i class="bi bi-bookmark-check-fill"></i> Đã lưu bài viết <a href="/user/saved">Xem danh sách →</a>'
+                    : '<i class="bi bi-bookmark-x"></i> Đã bỏ lưu bài viết');
+            } catch (e) {
+                showToast('<i class="bi bi-wifi-off"></i> Không kết nối được máy chủ');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+    })();
+
+    // KÍCH HOẠT SLIDER VỚI GIAO DIỆN SẠCH MỚI
+    // jQuery + Owl được nạp ở cuối layout (sau {{{body}}}), nên phải đợi DOMContentLoaded mới kiểm tra
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof $ === 'undefined' || !$.fn.owlCarousel) {
+            console.error("jQuery/OwlCarousel chưa được tải.");
+            return;
+        }
+        $('#recommended-slider').owlCarousel({
+                loop: false, 
+                margin: 20, 
+                nav: true, // Bật mũi tên
+                navText: [
+                    "<i class='bi bi-chevron-left'></i>", 
+                    "<i class='bi bi-chevron-right'></i>"
+                ],
+                dots: true, 
+                autoplay: true, 
+                autoplayTimeout: 4000, 
+                autoplayHoverPause: true,
+                responsive: { 0: { items: 1 }, 768: { items: 2 }, 992: { items: 3 } }
+        });
+    });
+
+    // THUẬT TOÁN LOAD MORE BÌNH LUẬN
+    document.addEventListener("DOMContentLoaded", function() {
+        const comments = document.querySelectorAll('.comment-item');
+        const loadMoreBtn = document.getElementById('loadMoreCommentsBtn');
+        let currentShown = 5; 
+        const step = 10;      
+
+        function updateButton() {
+            const remaining = comments.length - currentShown;
+            if (remaining > 0) {
+                loadMoreBtn.style.display = 'inline-block';
+                loadMoreBtn.innerText = `Tải thêm ${remaining} bình luận`;
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        if (comments.length > 0) {
+            for (let i = 0; i < Math.min(currentShown, comments.length); i++) {
+                comments[i].style.display = 'flex'; 
+            }
+            updateButton();
+        }
+
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                const nextLimit = currentShown + step;
+                for (let i = currentShown; i < Math.min(nextLimit, comments.length); i++) {
+                    comments[i].style.display = 'flex';
+                }
+                currentShown = nextLimit;
+                updateButton();
+            });
+        }
+    });
+
+    // CÁC HÀM XỬ LÝ AJAX
+    async function likeArticle(id) {
+        try {
+            const res = await fetch('/details/like', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+            const data = await res.json();
+            if (data.success) document.getElementById('like-count').innerText = data.newLikes;
+            else if (data.message) alert(data.message); 
+        } catch (error) { console.error(error); }
+    }
+
+    document.getElementById('commentForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const articleId = document.getElementById('articleId').value;
+        const name = document.getElementById('commentName').value.trim();
+        const content = document.getElementById('commentContent').value.trim();
+        if (!name || !content) return alert("Vui lòng nhập đủ thông tin.");
+        
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerHTML; btn.innerHTML = 'Sending...'; btn.disabled = true;
+
+        try {
+            const res = await fetch('/details/comment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ articleId, name, content }) });
+            const data = await res.json();
+            if (data.success) window.location.reload();
+            else { alert(data.message); btn.innerHTML = originalText; btn.disabled = false; }
+        } catch (error) { alert("Lỗi mạng."); btn.innerHTML = originalText; btn.disabled = false; }
+    });
+
+    document.getElementById("download-btn").addEventListener("click", async function () {
+        const content = document.querySelector(".main-article-section");
+        if (!content) return;
+        const btn = document.getElementById("download-btn");
+        const originalText = btn.innerHTML; btn.innerHTML = 'Loading...'; btn.disabled = true;
+
+        try {
+            const canvas = await html2canvas(content, { scale: 2, useCORS: true, backgroundColor: '#fbfbfb' });
+            const imgData = canvas.toDataURL("image/jpeg", 1.0);
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("p", "mm", "a4"); 
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+            let y = 0;
+            while (y < imgHeight) {
+                pdf.addImage(imgData, "JPEG", 0, -y, pdfWidth, imgHeight);
+                y += pdfHeight; 
+                if (y < imgHeight) pdf.addPage(); 
+            }
+            pdf.save("article.pdf");
+        } catch (error) { alert("Lỗi tạo PDF."); } 
+        finally { btn.innerHTML = originalText; btn.disabled = false; }
+    });
+</script>

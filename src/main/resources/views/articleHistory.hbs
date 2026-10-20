@@ -1,0 +1,55 @@
+<link rel="stylesheet" href="/css/workspace.css">
+
+<div class="wk-page">
+  <div class="container" style="max-width:980px">
+
+    <div class="wk-head">
+      <div>
+        <div class="wk-kicker"><i class="bi bi-clock-history"></i> Lịch sử bài viết</div>
+        <h1 class="wk-title">{{article.title}}</h1>
+        <p class="wk-sub">
+          Tác giả <b>{{article.author.username}}</b> · {{#if article.category.name}}<span class="text-capitalize">{{article.category.name}}</span> · {{/if}}
+          {{#if article.publishedAt}}Đăng {{formatDateTime article.publishedAt}}{{else}}Chưa đăng{{/if}}
+          {{#if article.lastRevisedAt}} · Cập nhật bản sửa {{formatDateTime article.lastRevisedAt}}{{/if}}
+        </p>
+      </div>
+      <div class="wk-head-actions">
+        {{#if (eq article.status 'published')}}<a href="/details?id={{article._id}}" target="_blank" class="wk-btn wk-btn--ghost"><i class="bi bi-box-arrow-up-right"></i> Xem bài</a>{{/if}}
+        {{#if isAuthor}}<a href="/writer/edit/{{article._id}}" class="wk-btn"><i class="bi bi-pencil"></i> Sửa bài</a>{{/if}}
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="wk-panel">
+          <div class="wk-panel-head"><h2 class="wk-panel-title">Dòng thời gian</h2><span class="wk-count">{{history.length}}</span></div>
+          {{> historyTimeline items=history}}
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="wk-panel">
+          <span class="wk-label">Hiện trạng</span>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="wk-pill wk-pill--{{article.status}}">{{article.status}}</span>
+            {{#if article.revision}}<span class="wk-pill wk-pill--revision_{{article.revision.status}}">bản sửa {{#if (eq article.revision.status 'pending')}}chờ duyệt{{else}}bị từ chối{{/if}}</span>{{/if}}
+          </div>
+          {{#if (eq article.status 'published')}}
+          <div class="wk-meta d-flex flex-column gap-2" style="white-space:normal">
+            <span><i class="bi bi-eye"></i>{{article.views}} lượt xem</span>
+            <span><i class="bi bi-heart"></i>{{article.likesCount}} lượt tim</span>
+            <span><i class="bi bi-chat"></i>{{article.commentsCount}} bình luận</span>
+          </div>
+          {{/if}}
+          {{#if article.revision}}
+          <hr>
+          <span class="wk-label">Bản sửa</span>
+          <div class="wk-article-title mb-1">{{article.revision.title}}</div>
+          <div class="wk-meta mb-2">Gửi {{timeAgo article.revision.submittedAt}}</div>
+          {{#if article.revision.rejectionNote}}<div class="ht-note">“{{article.revision.rejectionNote}}”</div>{{/if}}
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

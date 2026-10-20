@@ -1,0 +1,47 @@
+<main class="au-card">
+    <section class="au-side">
+        {{> authBrand}}
+
+        <div class="au-main">
+            <h1 class="au-title">Tạo tài khoản</h1>
+            <p class="au-lead">Chỉ mất một phút để tham gia cộng đồng độc giả GR6 News.</p>
+
+            {{#if has_errors}}<div class="au-alert au-alert--error"><i class="bi bi-exclamation-circle-fill"></i><span>{{has_errors}}</span></div>{{/if}}
+
+            <form class="au-form" action="/auth/register" method="POST">
+                <div class="au-field">
+                    <label for="full_name">Họ và tên</label>
+                    <input class="au-input" type="text" id="full_name" name="full_name" placeholder="Họ và tên" required value="{{formData.full_name}}" autocomplete="name">
+                </div>
+                <div class="au-row">
+                    <div class="au-field">
+                        <label for="username">Tên đăng nhập</label>
+                        <input class="au-input" type="text" id="username" name="username" placeholder="Tên đăng nhập" required value="{{formData.username}}" autocomplete="username">
+                    </div>
+                    <div class="au-field">
+                        <label for="email">Email</label>
+                        <input class="au-input" type="email" id="email" name="email" placeholder="Email" required value="{{formData.email}}" autocomplete="email">
+                    </div>
+                </div>
+                <div class="au-field au-field--pass">
+                    <label for="password">Mật khẩu</label>
+                    <input class="au-input" type="password" id="password" name="password" placeholder="Mật khẩu (tối thiểu 6 ký tự)" required minlength="6" autocomplete="new-password">
+                    <button type="button" class="au-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button>
+                </div>
+                <div class="au-field au-field--pass" style="margin-bottom:22px">
+                    <label for="confirm_password">Nhập lại mật khẩu</label>
+                    <input class="au-input" type="password" id="confirm_password" name="confirm_password" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                    <button type="button" class="au-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button>
+                </div>
+                <button class="au-btn" type="submit">Tạo tài khoản <i class="bi bi-arrow-right"></i></button>
+                <p class="au-terms">Khi đăng ký, bạn đồng ý với <a href="/about#terms">Điều khoản sử dụng</a> của GR6 News.</p>
+            </form>
+
+            <p class="au-switch">Đã có tài khoản? <a href="/auth/login">Đăng nhập</a></p>
+        </div>
+
+        {{> authFoot}}
+    </section>
+
+    {{> authVisual heading="Mỗi ngày một góc nhìn mới" text="Hàng trăm bài viết từ các phóng viên và biên tập viên, được kiểm duyệt trước khi đến tay bạn."}}
+</main>

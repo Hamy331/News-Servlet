@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+
+/* Nền và Typography Tổng thể */
+.article-management {
+    font-family: 'Inter', sans-serif;
+    background-color: #fbfbfb;
+    min-height: 100vh;
+    padding: 40px 0 80px;
+}
+
+/* Tiêu đề trang */
+.writer-page-title {
+    font-family: 'Lora', serif;
+    font-size: 1.75rem; /* Thu nhỏ từ 2.5rem xuống 1.75rem */
+    font-weight: 700;
+    color: #111;
+    letter-spacing: -0.5px;
+    margin-bottom: 0; /* Gỡ margin để canh giữa với icon */
+}
+
+/* Khung chức năng chung (Form & Table) */
+.writer-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid #eaeaea;
+    padding: 2.5rem;
+    margin-bottom: 3rem;
+}
+
+.writer-card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f4f4f4;
+    padding-bottom: 1rem;
+}
+
+/* Tùy chỉnh Form Nhập liệu */
+.form-label {
+    font-weight: 600;
+    color: #444;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #fcfcfc;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    background-color: #fff;
+}
+
+/* Khung Tags */
+.tags-container {
+    background-color: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+/* Tùy chỉnh Chip (Thẻ Tag đã chọn) */
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.custom-chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fff;
+    color: #333;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+}
+
+.custom-chip:hover {
+    background-color: #f1f3f4;
+    border-color: #ccc;
+}
+
+.custom-chip-remove {
+    margin-left: 8px;
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.custom-chip-remove:hover {
+    color: #d93025;
+}
+
+/* Tùy chỉnh Bảng Danh Sách Bài Viết */
+.writer-table th {
+    background-color: #f8f9fa;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border-bottom: 2px solid #eaeaea;
+}
+
+.writer-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    color: #333;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f4f4f4;
+}
+
+.writer-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.writer-table tbody tr:hover {
+    background-color: #fdfdfd;
+}
+
+.article-title-cell {
+    font-weight: 600;
+    color: #111;
+}
+
+/* Trạng thái Badge */
+.status-badge {
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Nút Submit */
+.btn-submit {
+    background-color: #111;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-submit:hover {
+    background-color: #d93025; /* Đỏ báo chí */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(217, 48, 37, 0.2);
+}
+
+/* ẨN VĨNH VIỄN CẢNH BÁO ĐỎ CỦA CKEDITOR */
+.cke_notifications_area {
+    display: none !important;
+}

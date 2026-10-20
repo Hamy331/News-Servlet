@@ -1,0 +1,333 @@
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="/css/workspace.css">
+
+<div class="wk-page">
+  <div class="container">
+
+    <!-- TIÊU ĐỀ -->
+    <div class="wk-head">
+      <div>
+        <div class="wk-kicker"><i class="bi bi-shield-lock"></i> Admin Dashboard</div>
+        <h1 class="wk-title">Bảng quản trị</h1>
+        <p class="wk-sub">Toàn quyền tòa soạn: duyệt bài mọi chuyên mục, quản lý thành viên, phân công Editor, chuyên mục và thẻ.</p>
+      </div>
+      <div class="wk-head-actions">
+        <button type="button" class="wk-btn wk-btn--ghost" data-bs-toggle="modal" data-bs-target="#categoryModal"><i class="bi bi-plus-lg"></i> Chuyên mục</button>
+        <button type="button" class="wk-btn" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-person-plus"></i> Thành viên</button>
+      </div>
+    </div>
+
+    {{#if flash}}
+    <div class="wk-flash wk-flash--{{flash.type}}">
+      <i class="bi {{#if (eq flash.type 'success')}}bi-check-circle-fill{{else}}bi-info-circle-fill{{/if}}"></i>
+      <span>{{flash.text}}</span>
+      <button type="button" class="btn-close" onclick="this.parentElement.remove()" aria-label="Đóng"></button>
+    </div>
+    {{/if}}
+
+    <!-- THỐNG KÊ -->
+    <div class="wk-stats">
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--amber"><i class="bi bi-hourglass-split"></i></div>
+        <div><div class="wk-stat-label">Chờ duyệt</div><div class="wk-stat-value">{{stats.pending}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--green"><i class="bi bi-newspaper"></i></div>
+        <div><div class="wk-stat-label">Đã xuất bản</div><div class="wk-stat-value">{{stats.published}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon"><i class="bi bi-people"></i></div>
+        <div><div class="wk-stat-label">Thành viên</div><div class="wk-stat-value">{{stats.users}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--blue"><i class="bi bi-person-check"></i></div>
+        <div><div class="wk-stat-label">Editor</div><div class="wk-stat-value">{{stats.editors}}</div></div>
+      </div>
+      <div class="wk-stat">
+        <div class="wk-stat-icon wk-stat-icon--red"><i class="bi bi-grid"></i></div>
+        <div><div class="wk-stat-label">Chuyên mục · Thẻ</div><div class="wk-stat-value">{{stats.categories}} · {{stats.tags}}</div></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="wk-tabs" role="tablist">
+      <button class="wk-tab active" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">
+        <i class="bi bi-inbox"></i> Duyệt bài <span class="wk-count {{#if stats.pending}}wk-count--alert{{/if}}">{{stats.pending}}</span>
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+        <i class="bi bi-clock-history"></i> Lịch sử duyệt
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+        <i class="bi bi-people"></i> Thành viên <span class="wk-count">{{stats.users}}</span>
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#editors" type="button" role="tab">
+        <i class="bi bi-person-check"></i> Phân công Editor <span class="wk-count">{{stats.editors}}</span>
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">
+        <i class="bi bi-grid"></i> Chuyên mục <span class="wk-count">{{stats.categories}}</span>
+      </button>
+      <button class="wk-tab" data-bs-toggle="tab" data-bs-target="#tags" type="button" role="tab">
+        <i class="bi bi-tags"></i> Thẻ <span class="wk-count">{{stats.tags}}</span>
+      </button>
+    </div>
+
+    <div class="tab-content">
+
+      <!-- 1. DUYỆT BÀI -->
+      <div class="tab-pane fade show active" id="review" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Bài chờ duyệt — tất cả chuyên mục</h2>
+              <p class="wk-panel-sub">Admin duyệt được mọi bài; Editor chỉ thấy bài trong chuyên mục được phân công.</p>
+            </div>
+          </div>
+          {{> reviewQueue items=getPendingArticles}}
+        </div>
+      </div>
+
+      <!-- 2. LỊCH SỬ -->
+      <div class="tab-pane fade" id="history" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Lịch sử duyệt toàn tòa soạn</h2>
+              <p class="wk-panel-sub">30 quyết định gần nhất của Admin và các Editor.</p>
+            </div>
+          </div>
+          {{> reviewHistory items=history showReviewer=true}}
+        </div>
+      </div>
+
+      <!-- 3. THÀNH VIÊN -->
+      <div class="tab-pane fade" id="users" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Thành viên hệ thống</h2>
+              <p class="wk-panel-sub">Tạo tài khoản cho phóng viên, biên tập viên hoặc độc giả.</p>
+            </div>
+            <button type="button" class="wk-btn wk-btn--sm" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-person-plus"></i> Thêm thành viên</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table wk-table wk-datatable align-middle">
+              <thead><tr><th>Thành viên</th><th>Email</th><th>Vai trò</th><th class="text-end">Thao tác</th></tr></thead>
+              <tbody>
+                {{#each getAllUsers}}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="gn-avatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0">{{getFirstLetter this.username}}</span>
+                      <div><div class="fw-semibold text-dark">{{this.username}}</div><div class="wk-meta">{{this.full_name}}</div></div>
+                    </div>
+                  </td>
+                  <td class="wk-meta">{{this.email}}</td>
+                  <td><span class="wk-pill wk-pill--{{this.role}}">{{this.role}}</span></td>
+                  <td>
+                    <div class="wk-actions">
+                      {{#if (eq this.role 'administrator')}}
+                      <span class="wk-meta">—</span>
+                      {{else}}
+                      <form action="/user/delete/{{this._id}}" method="post" class="m-0" onsubmit="return confirm('Xoá thành viên {{this.username}}?');">
+                        <button class="wk-btn wk-btn--danger wk-btn--sm"><i class="bi bi-trash"></i> Xoá</button>
+                      </form>
+                      {{/if}}
+                    </div>
+                  </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PHÂN CÔNG EDITOR -->
+      <div class="tab-pane fade" id="editors" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div>
+              <h2 class="wk-panel-title">Phân công Editor</h2>
+              <p class="wk-panel-sub">Mỗi Editor chỉ duyệt được bài thuộc các chuyên mục được gán ở đây.</p>
+            </div>
+          </div>
+          {{#if getEditorsOnly.length}}
+          <div class="table-responsive">
+            <table class="table wk-table wk-datatable align-middle">
+              <thead><tr><th>Editor</th><th>Chuyên mục phụ trách</th><th class="text-end">Thao tác</th></tr></thead>
+              <tbody>
+                {{#each getEditorsOnly}}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="gn-avatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0;background:#0d6efd">{{getFirstLetter this.username}}</span>
+                      <div><div class="fw-semibold text-dark">{{this.username}}</div><div class="wk-meta">{{this.full_name}}</div></div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="wk-cats">
+                      {{#each avaiCategory}}<span class="wk-pill wk-pill--cat">{{this.name}}</span>{{else}}<span class="wk-note">Chưa có chuyên mục — Editor này chưa duyệt được bài nào</span>{{/each}}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="wk-actions">
+                      <button type="button" class="wk-btn wk-btn--ghost wk-btn--sm" data-editor-id="{{this._id}}" data-editor-name="{{this.username}}"
+                              data-bs-toggle="modal" data-bs-target="#editorModal"><i class="bi bi-plus-circle"></i> Gán chuyên mục</button>
+                    </div>
+                  </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          {{else}}
+          <div class="wk-empty">
+            <div class="wk-empty-icon"><i class="bi bi-person-check"></i></div>
+            <h5>Chưa có Editor nào</h5>
+            <p class="mb-0">Tạo thành viên với vai trò <strong>editor</strong> ở tab Thành viên.</p>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- 5. CHUYÊN MỤC -->
+      <div class="tab-pane fade" id="categories" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div><h2 class="wk-panel-title">Chuyên mục</h2><p class="wk-panel-sub">Hiển thị trên thanh điều hướng của trang báo.</p></div>
+            <button type="button" class="wk-btn wk-btn--sm" data-bs-toggle="modal" data-bs-target="#categoryModal"><i class="bi bi-plus-lg"></i> Thêm chuyên mục</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table wk-table wk-datatable align-middle">
+              <thead><tr><th>Tên</th><th>Mô tả</th><th class="text-end">Thao tác</th></tr></thead>
+              <tbody>
+                {{#each allCategory}}
+                <tr>
+                  <td><a href="/category?name={{this.name}}" target="_blank" class="fw-semibold text-dark text-capitalize">{{this.name}}</a></td>
+                  <td class="wk-meta" style="white-space:normal">{{this.description}}</td>
+                  <td>
+                    <div class="wk-actions">
+                      <form action="/category/delete/{{this._id}}" method="post" class="m-0" onsubmit="return confirm('Xoá chuyên mục {{this.name}}?');">
+                        <button type="submit" class="wk-btn wk-btn--danger wk-btn--sm"><i class="bi bi-trash"></i> Xoá</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. THẺ -->
+      <div class="tab-pane fade" id="tags" role="tabpanel">
+        <div class="wk-panel">
+          <div class="wk-panel-head">
+            <div><h2 class="wk-panel-title">Thẻ (Tags)</h2><p class="wk-panel-sub">Phóng viên gắn thẻ khi viết bài.</p></div>
+            <button type="button" class="wk-btn wk-btn--sm" data-bs-toggle="modal" data-bs-target="#tagModal"><i class="bi bi-plus-lg"></i> Thêm thẻ</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table wk-table wk-datatable align-middle">
+              <thead><tr><th>Thẻ</th><th class="text-end">Thao tác</th></tr></thead>
+              <tbody>
+                {{#each allTags}}
+                <tr>
+                  <td><span class="wk-pill">#{{this.name}}</span></td>
+                  <td>
+                    <div class="wk-actions">
+                      <form action="/tag/delete/{{this._id}}" method="post" class="m-0" onsubmit="return confirm('Xoá thẻ #{{this.name}}?');">
+                        <button type="submit" class="wk-btn wk-btn--danger wk-btn--sm"><i class="bi bi-trash"></i> Xoá</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALS QUẢN TRỊ ================= -->
+<div class="modal fade wk-modal" id="categoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" action="/category" method="POST">
+      <div class="modal-header"><h5 class="modal-title">Thêm chuyên mục</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="wk-label">Tên chuyên mục</label><input type="text" class="form-control" name="catagoryName" required placeholder="vd. Công nghệ"></div>
+        <div><label class="wk-label">Mô tả</label><input type="text" class="form-control" name="catagoryDes" required placeholder="Mô tả ngắn hiển thị ở đầu trang chuyên mục"></div>
+      </div>
+      <div class="modal-footer"><button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button><button type="submit" class="wk-btn">Thêm</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade wk-modal" id="tagModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" action="/tag" method="POST">
+      <div class="modal-header"><h5 class="modal-title">Thêm thẻ</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><label class="wk-label">Tên thẻ</label><input type="text" class="form-control" name="tagName" required placeholder="vd. trí tuệ nhân tạo"></div>
+      <div class="modal-footer"><button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button><button type="submit" class="wk-btn">Thêm</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade wk-modal" id="userModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" action="/user" method="POST">
+      <div class="modal-header"><h5 class="modal-title">Thêm thành viên</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-sm-6"><label class="wk-label">Username</label><input type="text" class="form-control" name="username" required></div>
+          <div class="col-sm-6"><label class="wk-label">Mật khẩu</label><input type="password" class="form-control" name="userPass" required></div>
+          <div class="col-12"><label class="wk-label">Email</label><input type="email" class="form-control" name="userEmail" required></div>
+          <div class="col-sm-7"><label class="wk-label">Họ tên</label><input type="text" class="form-control" name="userFullName" required></div>
+          <div class="col-sm-5"><label class="wk-label">Vai trò</label>
+            <select class="form-select" name="userRole" required>
+              <option value="writer">writer</option>
+              <option value="editor">editor</option>
+              <option value="subscriber">subscriber</option>
+              <option value="guest">guest</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button><button type="submit" class="wk-btn">Tạo tài khoản</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade wk-modal" id="editorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" action="/administrator/editor/addcategory" method="POST">
+      <div class="modal-header"><h5 class="modal-title">Gán chuyên mục cho Editor</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="userid" name="userid">
+        <div class="wk-modal-article"><small>Editor</small><span id="editorName"></span></div>
+        <label class="wk-label">Chuyên mục</label>
+        <select class="form-select" name="catagoryid" required>
+          {{#each getAllCategories}}<option value="{{this._id}}">{{this.name}}</option>{{/each}}
+        </select>
+      </div>
+      <div class="modal-footer"><button type="button" class="wk-btn wk-btn--ghost" data-bs-dismiss="modal">Huỷ</button><button type="submit" class="wk-btn">Gán</button></div>
+    </form>
+  </div>
+</div>
+
+{{> reviewModals}}
+{{> workspaceScripts}}
+
+<script>
+  // Điền Editor được chọn vào modal phân công
+  document.getElementById("editorModal").addEventListener("show.bs.modal", function (e) {
+    const btn = e.relatedTarget;
+    if (!btn) return;
+    document.getElementById("userid").value = btn.dataset.editorId;
+    document.getElementById("editorName").textContent = btn.dataset.editorName;
+  });
+</script>

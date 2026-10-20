@@ -1,0 +1,36 @@
+<main class="au-card">
+    <section class="au-side">
+        {{> authBrand}}
+
+        <div class="au-main">
+            <h1 class="au-title">Đặt lại mật khẩu</h1>
+            <p class="au-lead">Chọn mật khẩu mới cho tài khoản của bạn. Nên dùng ít nhất 6 ký tự, kết hợp chữ và số.</p>
+
+            {{#if has_errors}}<div class="au-alert au-alert--error"><i class="bi bi-exclamation-circle-fill"></i><span>{{has_errors}}</span></div>{{/if}}
+
+            {{#if token}}
+            <form class="au-form" action="/auth/reset/{{token}}" method="post">
+                <div class="au-field au-field--pass">
+                    <label for="password">Mật khẩu mới</label>
+                    <input class="au-input" type="password" id="password" name="password" placeholder="Mật khẩu mới" required minlength="6" autocomplete="new-password" autofocus>
+                    <button type="button" class="au-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button>
+                </div>
+                <div class="au-field au-field--pass" style="margin-bottom:22px">
+                    <label for="confirm_password">Nhập lại mật khẩu mới</label>
+                    <input class="au-input" type="password" id="confirm_password" name="confirm_password" placeholder="Nhập lại mật khẩu mới" required autocomplete="new-password">
+                    <button type="button" class="au-eye" aria-label="Hiện mật khẩu"><i class="bi bi-eye"></i></button>
+                </div>
+                <button class="au-btn" type="submit">Cập nhật mật khẩu <i class="bi bi-check2"></i></button>
+            </form>
+            {{else}}
+            <a href="/auth/forgot" class="au-btn" style="text-decoration:none">Gửi lại yêu cầu mới</a>
+            {{/if}}
+
+            <p class="au-switch"><a href="/auth/login">Quay lại đăng nhập</a></p>
+        </div>
+
+        {{> authFoot}}
+    </section>
+
+    {{> authVisual heading="Bảo mật tài khoản của bạn" text="Mật khẩu được mã hoá trước khi lưu. Sau khi đổi, hãy dùng mật khẩu mới để đăng nhập lại."}}
+</main>

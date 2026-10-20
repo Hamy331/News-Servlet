@@ -1,0 +1,83 @@
+/* Container for register page content */
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  margin: 0;
+  transform: scale(0.9);
+  background-color: #f4f4f4; /* Light background color */
+  font-family: Arial, sans-serif;
+}
+
+/* Register form container styles */
+.register-page .register-container {
+  width: 450px;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Form heading */
+.register-page .register-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 23px; /* Increased to 23px */
+}
+
+/* Input groups */
+.register-page .register-container .form-group {
+  margin-bottom: 20px;
+}
+
+.register-page .register-container .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+  font-size: 23px; /* Increased to 23px */
+}
+
+.register-page .register-container .form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 23px; /* Increased to 23px */
+}
+
+/* Button container */
+.register-page .register-container .btn-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 35px;
+}
+
+.register-page .register-container .btn {
+  width: 48%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 23px; /* Increased to 23px */
+  transition: background-color 0.3s ease;
+}
+
+.register-page .register-container .btn-primary {
+  background-color: #00796b;
+  color: #fff;
+}
+
+.register-page .register-container .btn-primary:hover {
+  background-color: #004d40;
+}
+
+.register-page .register-container .btn-secondary {
+  background-color: #546e7a;
+  color: #fff;
+}
+
+.register-page .register-container .btn-secondary:hover {
+  background-color: #37474f;
+}

@@ -1,0 +1,180 @@
+<link rel="stylesheet" href="/css/magazine.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+  /* Ô tìm kiếm lớn */
+  .sr-form { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #111; padding: 6px 0 12px; margin-top: 18px; }
+  .sr-form i.bi-search { font-size: 1.5rem; color: #999; }
+  .sr-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-family: 'Lora', serif; font-size: 2.2rem; font-weight: 700; color: #111; }
+  .sr-input::placeholder { color: #c4c4c4; font-weight: 600; }
+  .sr-submit { border: 0; border-radius: 999px; background: #111; color: #fff; font-weight: 600; font-size: 0.9rem; padding: 11px 22px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .sr-submit:hover { background: #d93025; }
+  .sr-summary { margin: 14px 0 0; color: #666; font-size: 0.98rem; }
+  .sr-summary strong { color: #111; }
+
+  /* Thanh lọc */
+  .sr-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .sr-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; border: 1px solid #e3e3e3; background: #fff; font-size: 0.85rem; font-weight: 600; color: #444; text-transform: capitalize; transition: all 0.15s; }
+  .sr-chip small { font-size: 0.75rem; color: #999; font-weight: 600; }
+  .sr-chip:hover { border-color: #111; color: #111; }
+  .sr-chip.is-active { background: #111; border-color: #111; color: #fff; }
+  .sr-chip.is-active small { color: rgba(255,255,255,0.7); }
+  .sr-sort { display: inline-flex; background: #f0f0f0; border-radius: 999px; padding: 3px; }
+  .sr-sort a { padding: 6px 14px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; color: #666; }
+  .sr-sort a.is-active { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  /* Từ khoá được tô sáng */
+  .mz-page mark { background: #fff1b8; color: inherit; padding: 0 2px; border-radius: 3px; }
+
+  /* Phân trang */
+  .sr-pager { display: flex; justify-content: center; gap: 6px; margin-top: 32px; flex-wrap: wrap; }
+  .sr-pager a, .sr-pager span { min-width: 40px; height: 40px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid #e3e3e3; background: #fff; font-weight: 600; font-size: 0.9rem; color: #333; }
+  .sr-pager a:hover { border-color: #111; }
+  .sr-pager .is-active { background: #111; border-color: #111; color: #fff; }
+  .sr-pager .is-disabled { color: #ccc; }
+
+  .sr-empty-title { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 700; color: #111; margin: 6px 0 8px; }
+  @media (max-width: 575.98px) {
+    .sr-input { font-size: 1.45rem; }
+    .sr-submit { padding: 10px 16px; }
+  }
+</style>
+
+<div class="mz-page py-5">
+  <div class="container">
+
+    <!-- ===== Ô TÌM KIẾM ===== -->
+    <header class="mz-page-head" data-aos="fade-down" data-aos-duration="700">
+      <div class="mz-breadcrumb"><a href="/">Home</a> / <span class="mz-current">Tìm kiếm</span></div>
+      <form action="/search" method="get" class="sr-form" role="search">
+        <i class="bi bi-search"></i>
+        <input class="sr-input" type="text" name="q" value="{{query}}" placeholder="Bạn muốn đọc gì?" autocomplete="off" {{#unless query}}autofocus{{/unless}} aria-label="Từ khoá tìm kiếm">
+        <button class="sr-submit" type="submit">Tìm kiếm</button>
+      </form>
+      {{#if query}}
+      <p class="sr-summary">Tìm thấy <strong>{{totalAll}}</strong> kết quả cho “<strong>{{query}}</strong>”{{#if activeCat}} · đang lọc chuyên mục <strong class="text-capitalize">{{activeCat}}</strong> ({{total}}){{/if}}</p>
+      {{/if}}
+    </header>
+
+    <div class="row g-4 g-lg-5">
+      <!-- ===== KẾT QUẢ ===== -->
+      <div class="col-lg-8">
+
+        {{#if query}}
+          {{#if totalAll}}
+          <div class="sr-toolbar">
+            <div class="sr-chips">
+              <a href="{{urlAllCats}}" class="sr-chip {{#unless activeCat}}is-active{{/unless}}">Tất cả <small>{{totalAll}}</small></a>
+              {{#each facets}}
+              <a href="{{this.url}}" class="sr-chip {{#if this.active}}is-active{{/if}}">{{this.name}} <small>{{this.count}}</small></a>
+              {{/each}}
+            </div>
+            <div class="sr-sort" role="group" aria-label="Sắp xếp">
+              <a href="{{urlNew}}" class="{{#if (eq sort 'new')}}is-active{{/if}}">Mới nhất</a>
+              <a href="{{urlViews}}" class="{{#if (eq sort 'views')}}is-active{{/if}}">Xem nhiều</a>
+            </div>
+          </div>
+
+          <div class="mz-section" style="margin-top:1.4rem">
+            {{#each articles}}
+            <a href="/details?id={{this._id}}" class="mz-row mz-hover">
+              <div class="mz-thumb">
+                <img src="{{this.image_url.[0]}}" alt="{{this.title}}"
+                     onerror="this.onerror=null;this.src='https://placehold.co/600x400/eeeeee/999999?text=No+Image';">
+              </div>
+              <div class="mz-row-body">
+                {{#if this.category.name}}<span class="mz-kicker">{{this.category.name}}</span>{{/if}}
+                <h3 class="mz-headline mz-headline--lg mz-clamp-2 js-hl">{{this.title}}</h3>
+                {{#if this.summary}}<p class="mz-summary mz-clamp-2 js-hl">{{this.summary}}</p>{{/if}}
+                <div class="mz-meta">
+                  {{#if this.author.username}}<span><i class="bi bi-pen"></i>{{this.author.username}}</span>{{/if}}
+                  <span><i class="bi bi-calendar3"></i>{{formatDate (or this.publishedAt this.createdAt)}}</span>
+                  <span><i class="bi bi-eye"></i>{{this.views}}</span>
+                </div>
+              </div>
+            </a>
+            {{/each}}
+          </div>
+
+          {{#if pagination}}
+          <nav class="sr-pager" aria-label="Phân trang">
+            {{#if pagination.prev}}<a href="{{pagination.prev}}" aria-label="Trang trước"><i class="bi bi-chevron-left"></i></a>{{else}}<span class="is-disabled"><i class="bi bi-chevron-left"></i></span>{{/if}}
+            {{#each pagination.pages}}<a href="{{this.url}}" class="{{#if this.active}}is-active{{/if}}">{{this.n}}</a>{{/each}}
+            {{#if pagination.next}}<a href="{{pagination.next}}" aria-label="Trang sau"><i class="bi bi-chevron-right"></i></a>{{else}}<span class="is-disabled"><i class="bi bi-chevron-right"></i></span>{{/if}}
+          </nav>
+          {{/if}}
+
+          {{else}}
+          <div class="mz-empty" style="padding:56px 24px">
+            <i class="bi bi-search"></i>
+            <div class="sr-empty-title" style="font-style:normal">Không tìm thấy bài viết nào</div>
+            <p style="font-style:normal;margin:0 0 18px">Thử từ khoá ngắn hơn, kiểm tra chính tả, hoặc xem các chuyên mục dưới đây.</p>
+            <div class="sr-chips justify-content-center" style="font-style:normal">
+              {{#each navCategoriesAll}}<a href="/category?name={{this.name}}" class="sr-chip">{{this.name}}</a>{{/each}}
+            </div>
+          </div>
+          {{/if}}
+        {{else}}
+          <div class="mz-empty" style="padding:56px 24px">
+            <i class="bi bi-lightbulb"></i>
+            <div class="sr-empty-title" style="font-style:normal">Tìm theo tiêu đề, nội dung hoặc thẻ</div>
+            <p style="font-style:normal;margin:0 0 18px">Gõ từ khoá ở ô phía trên, hoặc bắt đầu từ một chuyên mục.</p>
+            <div class="sr-chips justify-content-center" style="font-style:normal">
+              {{#each navCategoriesAll}}<a href="/category?name={{this.name}}" class="sr-chip">{{this.name}}</a>{{/each}}
+            </div>
+          </div>
+        {{/if}}
+      </div>
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="col-lg-4">
+        <div class="mz-sticky">
+          <h5 class="mz-side-title mz-side-title--red">Tin mới nhất</h5>
+          {{#each newest5Articles}}
+          <a href="/details?id={{this._id}}" class="mz-mini mz-hover">
+            <div class="mz-thumb">
+              <img src="{{this.image_url.[0]}}" alt=""
+                   onerror="this.onerror=null;this.src='https://placehold.co/200x150/eeeeee/999999?text=No+Image';">
+            </div>
+            <div>
+              <h4 class="mz-headline mz-clamp-3">{{this.title}}</h4>
+              <div class="mz-meta mt-1"><span><i class="bi bi-clock"></i>{{formatDate (or this.publishedAt this.createdAt)}}</span></div>
+            </div>
+          </a>
+          {{/each}}
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  AOS.init({ once: true });
+
+  // Tô sáng từ khoá trong tiêu đề / sapo (xử lý trên text node, không chèn HTML thô)
+  (function () {
+    const q = {{#if query}}document.querySelector(".sr-input").value.trim(){{else}}""{{/if}};
+    if (!q) return;
+    const rx = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    document.querySelectorAll(".js-hl").forEach(function (el) {
+      const text = el.textContent;
+      if (!rx.test(text)) return;
+      rx.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      while ((m = rx.exec(text))) {
+        frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const mark = document.createElement("mark");
+        mark.textContent = m[0];
+        frag.appendChild(mark);
+        last = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(text.slice(last)));
+      el.textContent = "";
+      el.appendChild(frag);
+    });
+  })();
+</script>

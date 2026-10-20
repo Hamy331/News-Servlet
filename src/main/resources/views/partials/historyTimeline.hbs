@@ -1,0 +1,25 @@
+{{!-- Dòng thời gian lịch sử bài viết. Tham số: items --}}
+{{#if items.length}}
+<ol class="ht">
+  {{#each items}}
+  <li class="ht-item ht--{{this.tone}}">
+    <span class="ht-dot"><i class="bi {{this.icon}}"></i></span>
+    <div class="ht-body">
+      <div class="ht-head">
+        <strong>{{this.label}}</strong>
+        <time title="{{formatDateTime this.at}}">{{timeAgo this.at}}</time>
+      </div>
+      <div class="ht-meta">
+        {{#if this.by.username}}bởi <b>{{this.by.username}}</b>{{#if this.by.role}} <span class="ht-role">{{this.by.role}}</span>{{/if}} · {{/if}}{{formatDateTime this.at}}
+      </div>
+      {{#if this.changedLabels.length}}
+      <div class="ht-fields">{{#each this.changedLabels}}<span>{{this}}</span>{{/each}}</div>
+      {{/if}}
+      {{#if this.note}}{{#unless (eq this.action 'approved')}}<div class="ht-note">“{{this.note}}”</div>{{/unless}}{{/if}}
+    </div>
+  </li>
+  {{/each}}
+</ol>
+{{else}}
+<p class="wk-note mb-0">Chưa có lịch sử. (Các bài tạo trước khi có tính năng này sẽ bắt đầu ghi lịch sử từ lần sửa tiếp theo.)</p>
+{{/if}}

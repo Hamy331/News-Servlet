@@ -1,0 +1,69 @@
+/* admin-dashboard.css */
+.admin-dashboard {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 40px 0;
+}
+
+.admin-dashboard .container {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.admin-dashboard h1 {
+  font-weight: 700;
+  color: #131a22;
+  margin-bottom: 30px;
+}
+
+.nav-tabs {
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 25px;
+}
+
+.nav-tabs .nav-link {
+  font-size: 16px;
+  font-weight: 600;
+  color: #6c757d;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 12px 20px;
+  transition: all 0.3s;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #131a22;
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom: 3px solid #0d6efd;
+  background: transparent;
+}
+
+/* Nút bấm tổng quát */
+.admin-dashboard .btn-action {
+  font-size: 14px;
+  padding: 6px 12px;
+  margin-right: 5px;
+  border-radius: 6px;
+}
+
+/* Custom DataTables */
+.dataTables_wrapper .dataTables_filter input {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin-left: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #0d6efd !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 6px;
+}

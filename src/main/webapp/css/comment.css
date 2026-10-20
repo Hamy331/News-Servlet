@@ -1,0 +1,92 @@
+/* Tổng thể phần bình luận */
+.comments-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 25px;
+    border-radius: 8px;
+}
+
+.comments-section h3 {
+    font-size: 1.4em;
+    color: black;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #555; /* Gạch chân cho phần tiêu đề */
+    padding-bottom: 8px;
+}
+
+.comment {
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 6px;
+    background-color: #ffffff; /* Nền trắng cho mỗi bình luận */
+    border-left: 4px solid #131A22; /* Thanh dọc xanh để nhấn mạnh */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.comment p {
+    margin: 5px 0;
+    color: #333;
+}
+
+/* Tên độc giả và ngày bình luận */
+.comment p strong {
+    color: #131A22; 
+}
+
+/* Form đăng bình luận mới */
+.new-comment {
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 40px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #e8e8e8; /* Nền xám nhạt hơn */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.new-comment span{
+    color: black;
+    font-weight: 300;
+    border-left: 1px solid #ccc; 
+    padding-left: 10px; 
+    margin-left: 10px; 
+}
+
+.new-comment h3 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color:black;
+    border-bottom: 2px solid #131A22;
+    padding-bottom: 8px;
+}
+
+.new-comment label {
+    font-weight: bold;
+    color: black;
+    margin-top: 10px;
+}
+
+.new-comment input[type="text"],
+.new-comment textarea {
+    width: 98%;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.new-comment button {
+    padding: 10px 20px;
+    background-color: #131A22;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.new-comment button:hover {
+    background-color: #232F3E;
+}
