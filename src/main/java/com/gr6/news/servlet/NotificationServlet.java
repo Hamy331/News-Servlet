@@ -11,21 +11,6 @@ import java.io.IOException;
 /** Thay cho routes/notificationRoutes.js */
 @WebServlet("/notifications/*")
 public class NotificationServlet extends BaseServlet {
-
-    // Đánh dấu tất cả đã đọc rồi quay lại trang trước
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String[] p = parts(req);
-        if (!(p.length == 1 && p[0].equals("read-all"))) {
-            render404(req, resp, null);
-            return;
-        }
-        if (!isAuth(req, resp)) return;
-        NotificationController.markAllRead(myId(req));
-        String back = req.getHeader("Referer");
-        resp.sendRedirect(back != null && !back.isEmpty() ? back : "/");
-    }
-
     // Mở 1 thông báo: đánh dấu đã đọc rồi chuyển tới trang liên quan
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -43,5 +28,19 @@ public class NotificationServlet extends BaseServlet {
         }
         String link = n == null ? null : n.getString("link");
         resp.sendRedirect(link != null && !link.isEmpty() ? link : "/");
+    }
+
+    // Đánh dấu tất cả đã đọc rồi quay lại trang trước
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String[] p = parts(req);
+        if (!(p.length == 1 && p[0].equals("read-all"))) {
+            render404(req, resp, null);
+            return;
+        }
+        if (!isAuth(req, resp)) return;
+        NotificationController.markAllRead(myId(req));
+        String back = req.getHeader("Referer");
+        resp.sendRedirect(back != null && !back.isEmpty() ? back : "/");
     }
 }

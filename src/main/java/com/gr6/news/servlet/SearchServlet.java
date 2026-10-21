@@ -1,37 +1,24 @@
 package com.gr6.news.servlet;
 
 import com.gr6.news.controller.ArticleController;
-import com.gr6.news.model.Article;
-import com.gr6.news.model.Category;
-import com.gr6.news.model.Populate;
-import com.gr6.news.model.Tag;
-import com.mongodb.client.model.Accumulators;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Sorts;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.*;
-
 /** Thay cho routes/searchRoutes.js */
 @WebServlet("/search")
 public class SearchServlet extends BaseServlet {
     private static final int PAGE_SIZE = 10;
 
-    // Thoát ký tự đặc biệt để người dùng gõ "c++" hay "(abc" không làm lỗi RegExp
-    private static String escapeRegex(String s) {
-        return s.replaceAll("[.*+?^${}()|\\[\\]\\\\]", "\\\\$0");
-    }
-
+    // ---------------------------------------------------------------------------
+    // Định tuyến và xử lý: GET /search
+    // ---------------------------------------------------------------------------
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String q = param(req, "q").trim();
@@ -55,50 +42,14 @@ public class SearchServlet extends BaseServlet {
                 return;
             }
 
-            // Khớp tiêu đề, sapo, nội dung hoặc tên thẻ
-            String rx = escapeRegex(query);
-            List<Object> tagIds = new ArrayList<>();
-            for (Document t : Tag.col().find(regex("name", rx, "i")).projection(Projections.include("_id"))) {
-                tagIds.add(t.get("_id"));
-            }
-            List<Bson> ors = new ArrayList<>(List.of(regex("title", rx, "i"), regex("summary", rx, "i"), regex("content", rx, "i")));
-            if (!tagIds.isEmpty()) ors.add(in("tags", tagIds));
-            Bson baseFilter = and(eq("status", "published"), or(ors));
-
-            // Đếm kết quả theo chuyên mục (để lọc nhanh)
-            List<Document> facetRows = Article.col().aggregate(List.of(
-                    Aggregates.match(baseFilter),
-                    Aggregates.group("$category", Accumulators.sum("count", 1)))).into(new ArrayList<>());
-            List<Object> facetIds = facetRows.stream().map(f -> f.get("_id")).toList();
-            List<Document> cats = Category.col().find(in("_id", facetIds)).projection(Projections.include("name"))
-                    .into(new ArrayList<>());
-            List<Document> facets = new ArrayList<>();
-            for (Document f : facetRows) {
-                Document c = cats.stream().filter(x -> x.get("_id").equals(f.get("_id"))).findFirst().orElse(null);
-                if (c == null || c.getString("name") == null || c.getString("name").isEmpty()) continue;
-                facets.add(new Document("name", c.getString("name")).append("count", f.get("count")));
-            }
-            facets.sort((a, b) -> Integer.compare(((Number) b.get("count")).intValue(), ((Number) a.get("count")).intValue()));
-            int totalAll = facetRows.stream().mapToInt(f -> ((Number) f.get("count")).intValue()).sum();
-
-            // Áp bộ lọc chuyên mục nếu có
-            Document activeCat = cats.stream().filter(c -> catName.equals(c.getString("name"))).findFirst().orElse(null);
-            Bson filter = activeCat != null ? and(baseFilter, eq("category", activeCat.get("_id"))) : baseFilter;
-
-            long total = Article.col().countDocuments(filter);
-            int totalPages = (int) Math.max(1, Math.ceil(total / (double) PAGE_SIZE));
-            int current = Math.min(requested, totalPages);
-
-            List<Document> articles = Article.col().find(filter)
-                    .sort("views".equals(sort) ? Sorts.descending("views") : Sorts.descending("publishedAt", "createdAt"))
-                    .skip((current - 1) * PAGE_SIZE).limit(PAGE_SIZE).into(new ArrayList<>());
-            Populate.apply(articles, "category", "categories", "name");
-            Populate.apply(articles, "author", "users", "username");
-
-            String activeName = activeCat != null ? activeCat.getString("name") : null;
+            ArticleController.SearchResult r = ArticleController.search(query, catName, sort, requested, PAGE_SIZE);
+            List<Document> facets = r.facets();
+            int totalPages = r.totalPages();
+            int current = r.currentPage();
+            String activeName = r.activeCategory();
             for (Document f : facets) {
                 f.put("url", withParam(query, activeName, sort, "cat", f.getString("name")));
-                f.put("active", activeCat != null && f.getString("name").equals(activeName));
+                f.put("active", activeName != null && f.getString("name").equals(activeName));
             }
 
             List<Document> pages = new ArrayList<>();
@@ -112,9 +63,9 @@ public class SearchServlet extends BaseServlet {
                     "sort", sort,
                     "activeCat", activeName != null ? activeName : "",
                     "facets", facets,
-                    "totalAll", totalAll,
-                    "total", total,
-                    "articles", articles,
+                    "totalAll", r.totalAll(),
+                    "total", r.total(),
+                    "articles", r.articles(),
                     "newest5Articles", newest5Articles,
                     "pagination", totalPages > 1 ? locals("pages", pages,
                             "prev", current > 1 ? link(query, activeName, sort, current - 1) : null,
@@ -125,6 +76,9 @@ public class SearchServlet extends BaseServlet {
         }, () -> sendText(resp, 500, "Error during search"));
     }
 
+    // ---------------------------------------------------------------------------
+    // Tạo link phân trang, lọc, sắp xếp
+    // ---------------------------------------------------------------------------
     // Link phân trang giữ nguyên các tham số khác (giống URLSearchParams bên Node, giữ thứ tự tham số)
     private static LinkedHashMap<String, String> params(String query, String cat, String sort, int p) {
         LinkedHashMap<String, String> qs = new LinkedHashMap<>();

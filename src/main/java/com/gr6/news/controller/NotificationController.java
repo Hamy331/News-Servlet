@@ -15,7 +15,9 @@ import java.util.*;
 import static com.mongodb.client.model.Filters.*;
 
 public final class NotificationController {
-
+    // ---------------------------------------------------------------------------
+    // Tiện ích
+    // ---------------------------------------------------------------------------
     // Đường dẫn mở khi bấm vào thông báo, tuỳ vai trò người nhận
     private static String reviewLink(String role) {
         return "administrator".equals(role) ? "/administrator#review" : "/editor#review";
@@ -31,6 +33,9 @@ public final class NotificationController {
                 .append("createdAt", now).append("updatedAt", now).append("__v", 0);
     }
 
+    // ---------------------------------------------------------------------------
+    // Gửi thông báo khi bài được gửi, duyệt, từ chối
+    // ---------------------------------------------------------------------------
     /** Báo cho người duyệt liên quan: tất cả Admin + Editor được phân công chuyên mục của bài */
     public static void notifyReviewers(Document article, Object categoryId, Object actorId, String type, String message) {
         try {
@@ -49,6 +54,15 @@ public final class NotificationController {
         }
     }
 
+    /** Người viết vừa gửi / sửa bài → báo người duyệt, nội dung "<username> <verb> “<tiêu đề>”" */
+    public static void notifyReviewersOfWriter(Document article, Object categoryId, Document writer, String type, String verb) {
+        Document r = article.get("revision", Document.class);
+        String title = r != null && r.getString("title") != null && !r.getString("title").isEmpty()
+                ? r.getString("title") : article.getString("title");
+        notifyReviewers(article, categoryId, writer.get("_id"), type,
+                writer.getString("username") + " " + verb + " “" + title + "”");
+    }
+
     /** Báo cho 1 người (vd. tác giả khi bài được duyệt / bị từ chối) */
     public static void notifyUser(Object recipient, Object actorId, Document article, String type, String message, String link) {
         try {
@@ -59,6 +73,30 @@ public final class NotificationController {
         }
     }
 
+    /** Báo tác giả: bài (hoặc bản sửa) đã được duyệt */
+    public static void notifyAuthorApproved(Document article, Object reviewerId, boolean revision) {
+        notifyUser(article.get("author"), reviewerId, article,
+                revision ? "revision_approved" : "approved",
+                revision ? "Bản sửa của bài “" + article.getString("title") + "” đã được duyệt và thay thế bản cũ."
+                        : "Bài “" + article.getString("title") + "” đã được duyệt và xuất bản.",
+                "/details?id=" + article.get("_id"));
+    }
+
+    /** Báo tác giả: bài (hoặc bản sửa) bị từ chối, kèm ghi chú */
+    public static void notifyAuthorRejected(Document article, Object reviewerId, boolean revision, String note) {
+        Document r = article.get("revision", Document.class);
+        String title = revision && r != null && r.getString("title") != null && !r.getString("title").isEmpty()
+                ? r.getString("title") : article.getString("title");
+        notifyUser(article.get("author"), reviewerId, article,
+                revision ? "revision_rejected" : "rejected",
+                revision ? "Bản sửa của bài “" + title + "” chưa được duyệt — bài đang đăng giữ nguyên. Ghi chú: " + note
+                        : "Bài “" + title + "” bị từ chối. Ghi chú: " + note,
+                "/writer/edit/" + article.get("_id"));
+    }
+
+    // ---------------------------------------------------------------------------
+    // Chuông thông báo của người nhận
+    // ---------------------------------------------------------------------------
     public static List<Document> getLatest(Object userId, int limit) {
         return Notification.col().find(eq("recipient", Ids.oid(userId))).sort(Sorts.descending("createdAt"))
                 .limit(limit).into(new ArrayList<>());

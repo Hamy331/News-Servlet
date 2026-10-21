@@ -2,13 +2,12 @@ package com.gr6.news.servlet;
 
 import com.google.gson.JsonObject;
 import com.gr6.news.controller.ArticleController;
+import com.gr6.news.controller.CategoryController;
 import com.gr6.news.controller.CommentController;
-import com.gr6.news.model.Article;
-import com.gr6.news.model.Category;
+import com.gr6.news.controller.UserController;
 import com.gr6.news.model.Ids;
 import com.gr6.news.model.User;
 import com.gr6.news.util.Youtube;
-import com.mongodb.client.model.Sorts;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,12 +17,12 @@ import org.bson.types.ObjectId;
 import java.io.IOException;
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.*;
-
 /** Thay cho routes/homeRoutes.js: trang chủ, giới thiệu, chi tiết bài, thả tim, bình luận */
 @WebServlet(urlPatterns = {"", "/about", "/details", "/details/*"})
 public class HomeServlet extends BaseServlet {
-
+    // ---------------------------------------------------------------------------
+    // Định tuyến
+    // ---------------------------------------------------------------------------
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         switch (req.getServletPath()) {
@@ -37,6 +36,19 @@ public class HomeServlet extends BaseServlet {
         }
     }
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String sub = "/details".equals(req.getServletPath()) ? String.valueOf(req.getPathInfo()) : "";
+        switch (sub) {
+            case "/like" -> like(req, resp);
+            case "/comment" -> comment(req, resp);
+            default -> render404(req, resp, null);
+        }
+    }
+
+    // ---------------------------------------------------------------------------
+    // Trang chủ, giới thiệu, chi tiết bài
+    // ---------------------------------------------------------------------------
     // Trang chủ
     private void home(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         guard(() -> {
@@ -60,10 +72,10 @@ public class HomeServlet extends BaseServlet {
     private void about(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         guard(() -> {
             // Số liệu thật của toà soạn hiển thị trên trang Về chúng tôi
-            long articles = Article.col().countDocuments(eq("status", "published"));
-            long categories = Category.col().countDocuments();
-            long writers = User.col().countDocuments(eq("role", "writer"));
-            long editors = User.col().countDocuments(in("role", "editor", "administrator"));
+            long articles = ArticleController.countPublished();
+            long categories = CategoryController.countCategories();
+            long writers = UserController.countByRoles("writer");
+            long editors = UserController.countByRoles("editor", "administrator");
             render(req, resp, "about", locals("title", "Về chúng tôi",
                     "stats", locals("articles", articles, "categories", categories, "writers", writers, "editors", editors)));
         }, () -> render(req, resp, "about", locals("title", "Về chúng tôi")));
@@ -87,20 +99,15 @@ public class HomeServlet extends BaseServlet {
             List<Document> comments = CommentController.getCommentsByArticle(oid);
             Object authorId = Ids.oid(Ids.idOf(data.get("author")));
             Object categoryId = Ids.oid(Ids.idOf(data.get("category")));
-            List<Document> adsArticles = ArticleController.publishedWhere(eq("articleType", "advertisement"), null, 2);
-            List<Document> authorArticles = ArticleController.publishedWhere(
-                    and(eq("author", authorId), ne("_id", oid)), Sorts.descending("createdAt"), 4);
-            List<Document> hotArticles = ArticleController.publishedWhere(
-                    and(in("articleType", "hot", "must_know"), ne("_id", oid)), Sorts.descending("views"), 4);
-            List<Document> relatedCategoryArticles = ArticleController.publishedWhere(
-                    and(eq("category", categoryId), ne("_id", oid)), Sorts.descending("createdAt"), 4);
-            List<Document> recommendedArticles = ArticleController.publishedWhere(
-                    ne("_id", oid), Sorts.descending("publishedAt"), 6);
+            List<Document> adsArticles = ArticleController.getAdsArticles(2);
+            List<Document> authorArticles = ArticleController.getMoreByAuthor(authorId, oid, 4);
+            List<Document> hotArticles = ArticleController.getHotArticles(oid, 4);
+            List<Document> relatedCategoryArticles = ArticleController.getRelatedByCategory(categoryId, oid, 4);
+            List<Document> recommendedArticles = ArticleController.getRecommended(oid, 6);
 
             // Độc giả đã đăng nhập: bài này đã nằm trong danh sách lưu chưa?
             Document authUser = authUser(req);
-            boolean isSaved = User.isReader(authUser)
-                    && User.col().countDocuments(and(eq("_id", authUser.get("_id")), eq("savedArticles.article", oid))) > 0;
+            boolean isSaved = User.isReader(authUser) && UserController.hasSaved(authUser.get("_id"), oid);
 
             render(req, resp, "details", locals(
                     "article", data,
@@ -115,39 +122,20 @@ public class HomeServlet extends BaseServlet {
         }, () -> sendText(resp, 500, "Lỗi hệ thống"));
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String sub = "/details".equals(req.getServletPath()) ? String.valueOf(req.getPathInfo()) : "";
-        switch (sub) {
-            case "/like" -> like(req, resp);
-            case "/comment" -> comment(req, resp);
-            default -> render404(req, resp, null);
-        }
-    }
-
+    // ---------------------------------------------------------------------------
+    // Tương tác của độc giả: thả tim, bình luận
+    // ---------------------------------------------------------------------------
     // API: XỬ LÝ THẢ TIM (AJAX)
     private void like(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         guard(() -> {
-            String articleId = jsonString(jsonBody(req), "id");
-            ObjectId oid = Ids.oid(articleId);
-            if (oid == null) throw new IllegalArgumentException("Cast to ObjectId failed"); // bản Node: "Lỗi server."
-            Document article = Article.col().find(eq("_id", oid)).first();
-            if (article == null) {
-                json(resp, Map.of("success", false, "message", "Không tìm thấy bài viết"));
-                return;
+            // Id sai → controller báo lỗi, guard trả "Lỗi server."
+            ArticleController.LikeResult r = ArticleController.likeArticle(jsonString(jsonBody(req), "id"), authUser(req));
+            switch (r.status()) {
+                case "ok" -> json(resp, Map.of("success", true, "newLikes", r.likes()));
+                case "notfound" -> json(resp, Map.of("success", false, "message", "Không tìm thấy bài viết"));
+                case "own" -> json(resp, Map.of("success", false, "message", "Tác giả không được phép tự thả tim cho bài viết của mình."));
+                default -> json(resp, Map.of("success", false, "message", "Lỗi cập nhật lượt tim."));
             }
-            // Writer là tác giả của chính bài này → chặn
-            Document u = authUser(req);
-            if (u != null && "writer".equals(u.getString("role")) && Ids.same(u.get("_id"), article.get("author"))) {
-                json(resp, Map.of("success", false, "message", "Tác giả không được phép tự thả tim cho bài viết của mình."));
-                return;
-            }
-            Document updated = ArticleController.incrementLike(oid);
-            if (updated != null) {
-                json(resp, Map.of("success", true, "newLikes", updated.get("likesCount")));
-                return;
-            }
-            json(resp, Map.of("success", false, "message", "Lỗi cập nhật lượt tim."));
         }, () -> json(resp, Map.of("success", false, "message", "Lỗi server.")));
     }
 

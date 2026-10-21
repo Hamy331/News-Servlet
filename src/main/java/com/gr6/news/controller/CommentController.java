@@ -13,6 +13,11 @@ import java.util.*;
 import static com.mongodb.client.model.Filters.eq;
 
 public final class CommentController {
+    public static List<Document> getCommentsByArticle(Object articleId) {
+        ObjectId aid = Ids.oid(articleId);
+        if (aid == null) return new ArrayList<>();
+        return Comment.col().find(eq("articleId", aid)).sort(Sorts.descending("createdAt")).into(new ArrayList<>());
+    }
 
     public static Document addComment(Object articleId, String name, String content) {
         try {
@@ -28,12 +33,6 @@ public final class CommentController {
             System.err.println("Lỗi thêm bình luận: " + e);
             return null;
         }
-    }
-
-    public static List<Document> getCommentsByArticle(Object articleId) {
-        ObjectId aid = Ids.oid(articleId);
-        if (aid == null) return new ArrayList<>();
-        return Comment.col().find(eq("articleId", aid)).sort(Sorts.descending("createdAt")).into(new ArrayList<>());
     }
 
     private CommentController() {}

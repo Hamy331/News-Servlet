@@ -14,7 +14,6 @@ import java.util.*;
 
 @WebServlet(urlPatterns = {"/administrator", "/administrator/*"})
 public class AdminServlet extends BaseServlet {
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (parts(req).length > 0) {
