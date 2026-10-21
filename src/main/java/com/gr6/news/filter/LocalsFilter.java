@@ -49,7 +49,7 @@ public class LocalsFilter implements Filter {
         locals.put("writerTab", path.matches("^/writer/(articles|edit).*") ? "articles" : path.startsWith("/writer") ? "compose" : "");
 
         try {
-            List<Document> withTags = CategoryController.getNavCategoriesWithTags();9
+            List<Document> withTags = CategoryController.getNavCategoriesWithTags();
             locals.put("navCategoriesLimited", withTags.subList(0, Math.min(6, withTags.size())));
             locals.put("navCategoriesAll", withTags);
         } catch (Exception e) {
