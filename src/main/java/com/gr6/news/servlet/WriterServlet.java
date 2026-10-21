@@ -4,49 +4,20 @@ import com.gr6.news.controller.ArticleController;
 import com.gr6.news.controller.CategoryController;
 import com.gr6.news.controller.NotificationController;
 import com.gr6.news.controller.TagController;
-import com.gr6.news.model.Article;
 import com.gr6.news.model.Ids;
-import com.gr6.news.model.Populate;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.model.Sorts;
-import com.mongodb.client.model.Updates;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
 
 import java.io.IOException;
 import java.util.*;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-
 @WebServlet(urlPatterns = {"/writer", "/writer/*"})
 public class WriterServlet extends BaseServlet {
-
     // ---------------------------------------------------------------------------
     // Tiện ích
     // ---------------------------------------------------------------------------
-
-    // Trạng thái hiển thị cho người viết (gộp cả trạng thái bản sửa)
-    public static String displayState(Document a) {
-        Document r = a.get("revision", Document.class);
-        String status = a.getString("status");
-        if ("published".equals(status) && r != null && "pending".equals(r.getString("status"))) return "revision_pending";
-        if ("published".equals(status) && r != null && "rejected".equals(r.getString("status"))) return "revision_rejected";
-        return status; // draft | pending | rejected | published
-    }
-
-    private static final Map<String, String> STATE_LABEL = Map.of(
-            "draft", "Nháp",
-            "pending", "Chờ duyệt",
-            "rejected", "Bị từ chối",
-            "published", "Đã đăng",
-            "revision_pending", "Bản sửa chờ duyệt",
-            "revision_rejected", "Bản sửa bị từ chối");
-
     private static List<String> toArr(String[] values) {
         List<String> out = new ArrayList<>();
         if (values == null) return out;
@@ -72,35 +43,6 @@ public class WriterServlet extends BaseServlet {
         return d;
     }
 
-    private static boolean isValid(Map<String, Object> d) {
-        return !((String) d.get("title")).isEmpty()
-                && !((String) d.get("summary")).isEmpty()
-                && !((String) d.get("content")).replaceAll("<[^>]*>", "").trim().isEmpty()
-                && !((String) d.get("category")).isEmpty();
-    }
-
-    /** Chuyển dữ liệu form sang kiểu lưu trong Mongo (category, tags → ObjectId). Id sai → lỗi như CastError */
-    @SuppressWarnings("unchecked")
-    private static Document toDb(Map<String, Object> d) {
-        Document out = new Document();
-        out.put("title", d.get("title"));
-        out.put("summary", d.get("summary"));
-        out.put("content", d.get("content"));
-        out.put("image_url", d.get("image_url"));
-        out.put("video_url", d.get("video_url"));
-        out.put("category", castId(d.get("category")));
-        List<ObjectId> tags = new ArrayList<>();
-        for (String t : (List<String>) d.get("tags")) tags.add(castId(t));
-        out.put("tags", tags);
-        return out;
-    }
-
-    private static ObjectId castId(Object v) {
-        ObjectId o = Ids.oid(v);
-        if (o == null) throw new IllegalArgumentException("Cast to ObjectId failed for value \"" + v + "\"");
-        return o;
-    }
-
     private static Map<String, String> flashFor(String msg) {
         if (msg == null) return null;
         return switch (msg) {
@@ -116,18 +58,7 @@ public class WriterServlet extends BaseServlet {
 
     // Báo cho người duyệt liên quan (Admin + Editor phụ trách chuyên mục)
     private static void notifyReviewers(HttpServletRequest req, Document article, Object categoryId, String type, String verb) {
-        Document me = authUser(req);
-        Document r = article.get("revision", Document.class);
-        String title = r != null && r.getString("title") != null && !r.getString("title").isEmpty()
-                ? r.getString("title") : article.getString("title");
-        NotificationController.notifyReviewers(article, categoryId, me.get("_id"), type,
-                me.getString("username") + " " + verb + " “" + title + "”");
-    }
-
-    private static Document findMine(HttpServletRequest req, String id) {
-        ObjectId oid = Ids.oid(id);
-        if (oid == null) return null;
-        return Article.col().find(and(eq("_id", oid), eq("author", myId(req)))).first();
+        NotificationController.notifyReviewersOfWriter(article, categoryId, authUser(req), type, verb);
     }
 
     // ---------------------------------------------------------------------------
@@ -164,45 +95,25 @@ public class WriterServlet extends BaseServlet {
     }
 
     // ---------------------------------------------------------------------------
-    // Viết bài mới
+    // 1. Viết bài mới: GET /writer, POST /writer/submit_article
     // ---------------------------------------------------------------------------
     private void compose(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Document> category = CategoryController.getAllCategories();
-        List<Document> tag = TagController.getAllTags();
-        List<Document> mine = Article.col().find(eq("author", myId(req)))
-                .projection(Projections.include("status", "revision.status")).into(new ArrayList<>());
-
         render(req, resp, "writer", locals(
                 "layout", "admin_layout",
                 "title", "Viết bài",
-                "category", category,
-                "tag", tag,
-                "counts", locals(
-                        "total", mine.size(),
-                        "pending", count(mine, "pending") + count(mine, "revision_pending"),
-                        "rejected", count(mine, "rejected") + count(mine, "revision_rejected"),
-                        "published", mine.stream().filter(a -> "published".equals(a.getString("status"))).count())));
-    }
-
-    private static long count(List<Document> list, String state) {
-        return list.stream().filter(a -> state.equals(displayState(a))).count();
+                "category", CategoryController.getAllCategories(),
+                "tag", TagController.getAllTags(),
+                "counts", ArticleController.countByAuthor(myId(req))));
     }
 
     private void submit(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         guard(() -> {
             Map<String, Object> data = readForm(req);
-            if (!isValid(data)) {
+            if (!ArticleController.isValidInput(data)) {
                 json(resp, 400, Map.of("success", false, "message", "Vui lòng nhập đủ tiêu đề, sapo, nội dung và chuyên mục."));
                 return;
             }
-            Document fields = toDb(data);
-            fields.put("status", "pending");
-            fields.put("author", myId(req));
-            fields.put("views", 0);
-            fields.put("history", new ArrayList<>(List.of(
-                    Article.history("submitted", myId(req), (String) data.get("title"), null, null))));
-            Document article = Article.create(fields);
-            Article.col().insertOne(article);
+            Document article = ArticleController.submitArticle(data, myId(req));
             notifyReviewers(req, article, article.get("category"), "submitted", "gửi bài mới");
 
             json(resp, 200, Map.of("success", true, "message", "Bài viết đã được gửi!"));
@@ -210,20 +121,18 @@ public class WriterServlet extends BaseServlet {
     }
 
     // ---------------------------------------------------------------------------
-    // Bài viết của tôi
+    // 2. Bài viết của tôi: GET /writer/articles, gửi lại, huỷ bản sửa
     // ---------------------------------------------------------------------------
     private void myArticles(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Document> articles = Article.col().find(eq("author", myId(req)))
-                .sort(Sorts.descending("updatedAt")).into(new ArrayList<>());
-        Populate.apply(articles, "category", "categories", "name");
+        List<Document> articles = ArticleController.getArticlesByAuthor(myId(req));
 
         List<Document> list = new ArrayList<>();
         for (Document a : articles) {
-            String state = displayState(a);
+            String state = ArticleController.displayState(a);
             Document r = a.get("revision", Document.class);
             Document v = new Document(a);
             v.put("state", state);
-            v.put("stateLabel", STATE_LABEL.get(state));
+            v.put("stateLabel", ArticleController.STATE_LABEL.get(state));
             v.put("canResubmit", state.equals("rejected") || state.equals("draft") || state.equals("revision_rejected"));
             v.put("canDiscard", state.equals("revision_pending") || state.equals("revision_rejected"));
             v.put("note", state.equals("revision_rejected") ? r.get("rejectionNote")
@@ -254,64 +163,90 @@ public class WriterServlet extends BaseServlet {
 
     // Gửi lại bài bị từ chối (không cần sửa)
     private void resubmit(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
-        Document a = findMine(req, id);
-        if (a == null) {
+        Document a = ArticleController.findByAuthor(id, myId(req));
+        String kind = a == null ? null : ArticleController.resubmit(a, myId(req));
+        if (kind == null) {
             resp.sendRedirect("/writer/articles?msg=notallowed");
             return;
         }
-        ObjectId me = myId(req);
-        Document r = a.get("revision", Document.class);
-        Date now = new Date();
-        String status = a.getString("status");
-
-        if ("rejected".equals(status) || "draft".equals(status)) {
-            Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(
-                    Updates.set("status", "pending"),
-                    Updates.set("rejectionNote", null),
-                    Updates.set("updatedAt", now),
-                    Updates.push("history", Article.history("resubmitted", me, a.getString("title"), null, null))));
-            a.put("status", "pending");
+        if (kind.equals("new")) {
             notifyReviewers(req, a, a.get("category"), "resubmitted", "gửi lại bài");
-        } else if ("published".equals(status) && r != null && "rejected".equals(r.getString("status"))) {
-            Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(
-                    Updates.set("revision.status", "pending"),
-                    Updates.unset("revision.rejectionNote"),
-                    Updates.set("revision.submittedAt", now),
-                    Updates.set("updatedAt", now),
-                    Updates.push("history", Article.history("revision_submitted", me, r.getString("title"), null,
-                            r.getList("changedFields", String.class, new ArrayList<>())))));
-            notifyReviewers(req, a, r.get("category"), "revision_submitted", "gửi lại bản sửa cho bài đã đăng");
         } else {
-            resp.sendRedirect("/writer/articles?msg=notallowed");
-            return;
+            notifyReviewers(req, a, a.get("revision", Document.class).get("category"), "revision_submitted",
+                    "gửi lại bản sửa cho bài đã đăng");
         }
         resp.sendRedirect("/writer/articles?msg=resubmitted");
     }
 
     // Huỷ bản sửa của bài đã đăng
     private void discard(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
-        Document a = findMine(req, id);
-        Document r = a == null ? null : a.get("revision", Document.class);
-        if (a == null || !"published".equals(a.getString("status")) || r == null) {
+        Document a = ArticleController.findByAuthor(id, myId(req));
+        if (a == null || !ArticleController.discardRevision(a, myId(req))) {
             resp.sendRedirect("/writer/articles?msg=notallowed");
             return;
         }
-        Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(
-                Updates.push("history", Article.history("revision_discarded", myId(req), r.getString("title"), null, null)),
-                Updates.unset("revision"),
-                Updates.set("updatedAt", new Date())));
         resp.sendRedirect("/writer/articles?msg=discarded");
     }
 
     // ---------------------------------------------------------------------------
-    // Sửa bài
+    // 3. Sửa bài: GET / POST /writer/edit/{id}
     // ---------------------------------------------------------------------------
+    private void showEdit(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
+        Document article = loadForEdit(req, id);
+        if (article == null) {
+            render404(req, resp, "Không tìm thấy bài viết, hoặc bạn không phải tác giả của bài này.");
+            return;
+        }
+        renderEdit(req, resp, article, null, null, flashFor(req.getParameter("msg")));
+    }
+
+    private void saveEdit(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
+        Document a = ArticleController.findByAuthor(id, myId(req));
+        if (a == null) {
+            render404(req, resp, "Không tìm thấy bài viết, hoặc bạn không phải tác giả của bài này.");
+            return;
+        }
+
+        Map<String, Object> data = readForm(req);
+        String action = "submit".equals(req.getParameter("action")) ? "submit" : "save";
+
+        if (!ArticleController.isValidInput(data)) {
+            Document lean = loadForEdit(req, id);
+            renderEdit(req, resp, lean, data, "Vui lòng nhập đủ tiêu đề, sapo, nội dung và chuyên mục.", null);
+            return;
+        }
+
+        String outcome = ArticleController.saveByWriter(a, data, action, myId(req));
+        switch (outcome) {
+            case "discarded" -> resp.sendRedirect("/writer/articles?msg=discarded");
+            case "nochange" -> resp.sendRedirect("/writer/edit/" + a.get("_id") + "?msg=nochange");
+            case "revision" -> {
+                notifyReviewers(req, a, a.get("revision", Document.class).get("category"), "revision_submitted",
+                        "gửi bản sửa cho bài đã đăng");
+                resp.sendRedirect("/writer/articles?msg=revision");
+            }
+            case "resubmitted" -> {
+                notifyReviewers(req, a, a.get("category"), "resubmitted", "đã sửa và gửi lại bài");
+                resp.sendRedirect("/writer/articles?msg=resubmitted");
+            }
+            case "edited_pending" -> {
+                notifyReviewers(req, a, a.get("category"), "edited", "vừa chỉnh sửa bài đang chờ duyệt");
+                resp.sendRedirect("/writer/articles?msg=saved");
+            }
+            default -> resp.sendRedirect("/writer/articles?msg=saved");
+        }
+    }
+
+    private Document loadForEdit(HttpServletRequest req, String id) {
+        return ArticleController.findByAuthorForEdit(id, myId(req));
+    }
+
     @SuppressWarnings("unchecked")
     private void renderEdit(HttpServletRequest req, HttpServletResponse resp, Document article,
                             Map<String, Object> form, String error, Map<String, String> flash) throws IOException {
         List<Document> categories = CategoryController.getAllCategories();
         List<Document> tags = TagController.getAllTags();
-        String state = displayState(article);
+        String state = ArticleController.displayState(article);
         Document revision = article.get("revision", Document.class);
         // Bài đã đăng: form hiển thị bản sửa (nếu có), không thì bản đang đăng
         Map<String, Object> src = form != null ? form
@@ -340,7 +275,7 @@ public class WriterServlet extends BaseServlet {
                 "categories", cats,
                 "tags", tagList,
                 "state", state,
-                "stateLabel", STATE_LABEL.get(state),
+                "stateLabel", ArticleController.STATE_LABEL.get(state),
                 "isPublished", "published".equals(article.getString("status")),
                 "note", "revision_rejected".equals(state) ? revision.get("rejectionNote")
                         : "rejected".equals(state) ? article.get("rejectionNote") : null,
@@ -352,98 +287,5 @@ public class WriterServlet extends BaseServlet {
     private static Object first(Object v) {
         if (v instanceof List<?> l && !l.isEmpty() && l.get(0) != null && !String.valueOf(l.get(0)).isEmpty()) return l.get(0);
         return "";
-    }
-
-    private Document loadForEdit(HttpServletRequest req, String id) {
-        Document a = findMine(req, id);
-        if (a != null) Populate.apply(a, "history.by", "users", "username role");
-        return a;
-    }
-
-    private void showEdit(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
-        Document article = loadForEdit(req, id);
-        if (article == null) {
-            render404(req, resp, "Không tìm thấy bài viết, hoặc bạn không phải tác giả của bài này.");
-            return;
-        }
-        renderEdit(req, resp, article, null, null, flashFor(req.getParameter("msg")));
-    }
-
-    private void saveEdit(HttpServletRequest req, HttpServletResponse resp, String id) throws IOException {
-        ObjectId me = myId(req);
-        Document a = findMine(req, id);
-        if (a == null) {
-            render404(req, resp, "Không tìm thấy bài viết, hoặc bạn không phải tác giả của bài này.");
-            return;
-        }
-
-        Map<String, Object> data = readForm(req);
-        String action = "submit".equals(req.getParameter("action")) ? "submit" : "save";
-
-        if (!isValid(data)) {
-            Document lean = loadForEdit(req, id);
-            renderEdit(req, resp, lean, data, "Vui lòng nhập đủ tiêu đề, sapo, nội dung và chuyên mục.", null);
-            return;
-        }
-        Document fields = toDb(data);
-        Date now = new Date();
-
-        // ----- Bài ĐÃ ĐĂNG: lưu thành bản sửa chờ duyệt, bản đang đăng giữ nguyên -----
-        if ("published".equals(a.getString("status"))) {
-            List<String> changed = ArticleController.diffFields(a, data);
-            if (changed.isEmpty()) {
-                if (a.get("revision") != null) {
-                    // Người viết đã sửa về đúng như bản đang đăng → bỏ bản sửa
-                    Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(
-                            Updates.push("history", Article.history("revision_discarded", me, a.getString("title"), null, null)),
-                            Updates.unset("revision"),
-                            Updates.set("updatedAt", now)));
-                    resp.sendRedirect("/writer/articles?msg=discarded");
-                    return;
-                }
-                resp.sendRedirect("/writer/edit/" + a.get("_id") + "?msg=nochange");
-                return;
-            }
-            Document revision = new Document(fields)
-                    .append("status", "pending")
-                    .append("changedFields", changed)
-                    .append("submittedAt", now);
-            Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(
-                    Updates.set("revision", revision),
-                    Updates.push("history", Article.history("revision_submitted", me, (String) data.get("title"), null, changed)),
-                    Updates.set("updatedAt", now)));
-            a.put("revision", revision);
-            notifyReviewers(req, a, fields.get("category"), "revision_submitted", "gửi bản sửa cho bài đã đăng");
-            resp.sendRedirect("/writer/articles?msg=revision");
-            return;
-        }
-
-        // ----- Bài CHƯA ĐĂNG (nháp / chờ duyệt / bị từ chối): sửa trực tiếp -----
-        List<String> changed = ArticleController.diffFields(a, data);
-        boolean wasWaiting = "pending".equals(a.getString("status"));
-        List<Bson> ups = new ArrayList<>();
-        for (var e : fields.entrySet()) ups.add(Updates.set(e.getKey(), e.getValue()));
-        // mongoose chỉ đổi updatedAt khi có thay đổi thật
-        if (!changed.isEmpty() || ("submit".equals(action) && !wasWaiting)) ups.add(Updates.set("updatedAt", now));
-        a.putAll(fields);
-
-        if ("submit".equals(action) && !wasWaiting) {
-            ups.add(Updates.set("status", "pending"));
-            ups.add(Updates.set("rejectionNote", null));
-            ups.add(Updates.push("history", Article.history("resubmitted", me, (String) data.get("title"), null, changed)));
-            Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(ups));
-            notifyReviewers(req, a, a.get("category"), "resubmitted", "đã sửa và gửi lại bài");
-            resp.sendRedirect("/writer/articles?msg=resubmitted");
-            return;
-        }
-
-        if (!changed.isEmpty()) {
-            ups.add(Updates.push("history", Article.history("edited", me, (String) data.get("title"), null, changed)));
-        }
-        Article.col().updateOne(eq("_id", a.get("_id")), Updates.combine(ups));
-        if (wasWaiting && !changed.isEmpty()) {
-            notifyReviewers(req, a, a.get("category"), "edited", "vừa chỉnh sửa bài đang chờ duyệt");
-        }
-        resp.sendRedirect("/writer/articles?msg=saved");
     }
 }

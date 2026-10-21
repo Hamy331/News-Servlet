@@ -9,6 +9,13 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/tag", "/tag/*"})
 public class TagServlet extends BaseServlet {
+    // Trang danh sách theo tag của bản Node render view "listTag" không có trong views/ → luôn lỗi.
+    // FE đang tìm theo tag qua /search?q=..., nên ở đây trả 404.
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        render404(req, resp, null);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String[] p = parts(req);
@@ -27,12 +34,5 @@ public class TagServlet extends BaseServlet {
         } else {
             render404(req, resp, null);
         }
-    }
-
-    // Trang danh sách theo tag của bản Node render view "listTag" không có trong views/ → luôn lỗi.
-    // FE đang tìm theo tag qua /search?q=..., nên ở đây trả 404.
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        render404(req, resp, null);
     }
 }
